@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "dt3wQQhO0sc=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\radvi\\woop\\woop.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\radvi\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.19041.57\\microsoft.windows.sdk.net.ref.10.0.19041.57.nupkg.sha512"
+  ],
+  "logs": []
+}
