@@ -117,21 +117,31 @@ namespace woop
             reader.ReadBytes(data);
 
             byte flags = data[0];
-            bool is16Bit = (flags & 0x01) == 1;
+            bool is16Bit = (flags & 0x1) == 1;
             int offset = 1;
 
-            Console.WriteLine(string.Join(", ", data));
+            //Console.WriteLine(string.Join(", ", data));
+            ushort heartRate;
 
             if (is16Bit)
             {
-                // uses 2 bytes for HR                
+                Console.WriteLine("16 bit hr");
+                // uses 2 bytes for HR
+                byte a = data[1];
+                byte b = data[2];
+                heartRate = (UInt16)((a << 8) | b);
 
+                offset += 2;
             } else {
                 // uses 1 byte for HR 
-                
-                int heartRate = data[offset];
+                Console.WriteLine("8 bit hr");
+
+                heartRate = data[offset];
                 offset++;
             }
+
+            Console.WriteLine("HR: " + heartRate);
+
 
             // IBuffer buffer = args.CharacteristicValue;
 
