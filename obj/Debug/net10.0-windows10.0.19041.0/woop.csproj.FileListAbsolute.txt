@@ -16,3 +16,8 @@ C:\Users\radvi\woop\obj\Debug\net10.0-windows10.0.19041.0\refint\woop.dll
 C:\Users\radvi\woop\obj\Debug\net10.0-windows10.0.19041.0\woop.pdb
 C:\Users\radvi\woop\obj\Debug\net10.0-windows10.0.19041.0\woop.genruntimeconfig.cache
 C:\Users\radvi\woop\obj\Debug\net10.0-windows10.0.19041.0\ref\woop.dll
+C:\Users\radvi\woop\obj\Debug\net10.0-windows10.0.19041.0\MainWindow.baml
+C:\Users\radvi\woop\obj\Debug\net10.0-windows10.0.19041.0\MainWindow.g.cs
+C:\Users\radvi\woop\obj\Debug\net10.0-windows10.0.19041.0\App.g.cs
+C:\Users\radvi\woop\obj\Debug\net10.0-windows10.0.19041.0\woop_MarkupCompile.cache
+C:\Users\radvi\woop\obj\Debug\net10.0-windows10.0.19041.0\woop.g.resources

@@ -141,35 +141,6 @@ namespace woop
             }
 
             Console.WriteLine("HR: " + heartRate);
-
-
-            // IBuffer buffer = args.CharacteristicValue;
-
-            // byte[] data = new byte[buffer.Length];
-            // DataReader.FromBuffer(buffer).ReadBytes(data);
-
-            // int heartRate = BitConverter.ToUInt16(data, 1);
-
-            // Console.WriteLine("skibidi");
-            // Console.WriteLine("Data: " + data);
-
-            // Console.WriteLine("HR: " + heartRate);
-            // Console.Out.Flush();
-
-
-            // DataReader reader = DataReader.FromBuffer(buffer);
-
-            // string textData = reader.ReadString(buffer.Length);
-            // Console.WriteLine("heartrate: " + (textData));
-
-            //  using var reader = Windows.Storage.Streams.DataReader.FromBuffer(args.CharacteristicValue);
-    
-            // // 2. Read the bytes into a local array
-            // byte[] data = new byte[reader.UnconsumedBufferLength];
-            // reader.ReadBytes(data);
-
-            // // 3. Print as a Hex string (e.g., "0A-FF-12")
-            // Console.WriteLine($"Hex: {BitConverter.ToString(data)}");
         }
 
         static void DeviceWatcher_Added(DeviceWatcher deviceWatcher, DeviceInformation deviceInformation){
