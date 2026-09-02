@@ -2,6 +2,9 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement; 
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
+using System.Text;
+using Windows.Storage.Streams;
+using System;
 
 namespace woop
 {
@@ -51,9 +54,16 @@ namespace woop
                     
                 }
 
-                String input = Console.ReadLine();
 
-                GattCharacteristicsResult char_properties = await services[int.Parse(input)].GetCharacteristicsAsync();
+
+                Console.WriteLine("Choose a service");
+                String input = Console.ReadLine();
+                int val = int.Parse(input);
+
+                var chosen_service = services[val];
+
+                GattCharacteristicsResult char_properties = await chosen_service.GetCharacteristicsAsync();
+
 
                 if (char_properties.Status == GattCommunicationStatus.Success)
                 {
@@ -66,38 +76,91 @@ namespace woop
                         Console.WriteLine("characteristic uuid: "+ characteristic.Uuid);
                     }
 
-                    Console.WriteLine("bleh");
 
-                    GattCharacteristicProperties properties = characteristics[0].CharacteristicProperties;
+                    // choose a characteristic
+                    Console.WriteLine("Choose a characteristic");
+                    input = Console.ReadLine();
+                    val = int.Parse(input);                
                     
-                    // if(properties.HasFlag(GattCharacteristicProperties.Read))
-                    // {
-                    //     GattReadResult read_result = await characteristics[0].ReadValueAsync();
-                    //     if(read_result.Status == GattCommunicationStatus.Success){
-                    //         // var reader = DataReader.FromBuffer(result.Value);
-                    //         // byte[] input = new byte[reader.UnconsumedBufferLength];
-                    //         // string read = reader.ReadBytes(input);
-                    //         var read = read_result.Value;
-                    //         Console.WriteLine("i read: " + read);
-                    //     }
-                    // }
+                    var chosen_characteristic = characteristics[val];
+
+
+                    GattCharacteristicProperties properties = chosen_characteristic.CharacteristicProperties;
+                    
 
                     if(properties.HasFlag(GattCharacteristicProperties.Notify))
                     {
-                        
-                    }
+                        GattCommunicationStatus status = await chosen_characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
 
+                        // subscribe to the event that the value changed
+                        if(status == GattCommunicationStatus.Success){
+                            Console.WriteLine("bleh");
+                            chosen_characteristic.ValueChanged += characteristic_ValueChanged;
+                        }
+                    }
+                //await Task.Delay(10000);
+                input = Console.ReadLine(); 
 
 
                 }
             }
 
 
-            
             return;
         }
 
+        static private void characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args){
+            Console.WriteLine("the value changed twin !");
 
+            var reader = DataReader.FromBuffer(args.CharacteristicValue);
+            byte[] data = new byte[reader.UnconsumedBufferLength];
+            reader.ReadBytes(data);
+
+            byte flags = data[0];
+            bool is16Bit = (flags & 0x01) == 1;
+            int offset = 1;
+
+            Console.WriteLine(string.Join(", ", data));
+
+            if (is16Bit)
+            {
+                // uses 2 bytes for HR                
+
+            } else {
+                // uses 1 byte for HR 
+                
+                int heartRate = data[offset];
+                offset++;
+            }
+
+            // IBuffer buffer = args.CharacteristicValue;
+
+            // byte[] data = new byte[buffer.Length];
+            // DataReader.FromBuffer(buffer).ReadBytes(data);
+
+            // int heartRate = BitConverter.ToUInt16(data, 1);
+
+            // Console.WriteLine("skibidi");
+            // Console.WriteLine("Data: " + data);
+
+            // Console.WriteLine("HR: " + heartRate);
+            // Console.Out.Flush();
+
+
+            // DataReader reader = DataReader.FromBuffer(buffer);
+
+            // string textData = reader.ReadString(buffer.Length);
+            // Console.WriteLine("heartrate: " + (textData));
+
+            //  using var reader = Windows.Storage.Streams.DataReader.FromBuffer(args.CharacteristicValue);
+    
+            // // 2. Read the bytes into a local array
+            // byte[] data = new byte[reader.UnconsumedBufferLength];
+            // reader.ReadBytes(data);
+
+            // // 3. Print as a Hex string (e.g., "0A-FF-12")
+            // Console.WriteLine($"Hex: {BitConverter.ToString(data)}");
+        }
 
         static void DeviceWatcher_Added(DeviceWatcher deviceWatcher, DeviceInformation deviceInformation){
             
