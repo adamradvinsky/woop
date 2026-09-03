@@ -10,35 +10,48 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
+using woop;
 
 namespace woop_app
 {
     public partial class MainWindow : Window
     {
+
+        
         // Standard Bluetooth SIG Heart Rate service/characteristic UUIDs, used as a
         // fallback. WHOOP almost certainly exposes its own proprietary GATT service
         // instead of this standard profile - swap these once you've pulled the real
         // UUIDs out of your reverse-engineering work.
-        private static readonly Guid HeartRateServiceUuid = GattServiceUuids.HeartRate;
-        private static readonly Guid HeartRateMeasurementCharUuid = GattCharacteristicUuids.HeartRateMeasurement;
+        // private static readonly Guid HeartRateServiceUuid = GattServiceUuids.HeartRate;
+        // private static readonly Guid HeartRateMeasurementCharUuid = GattCharacteristicUuids.HeartRateMeasurement;
 
-        private BluetoothLEDevice _device;
-        private GattCharacteristic _heartRateCharacteristic;
+        // private BluetoothLEDevice _device;
+        // private GattCharacteristic _heartRateCharacteristic;
 
-        private readonly List<double> _heartRateHistory = new();
-        private const int MaxHistoryPoints = 60;
+        // private readonly List<double> _heartRateHistory = new();
+        // private const int MaxHistoryPoints = 60;
 
-        // Fakes incoming BPM data so the UI can be exercised without a strap connected.
-        private readonly DispatcherTimer _simulationTimer = new();
-        private readonly Random _rng = new();
+        // // Fakes incoming BPM data so the UI can be exercised without a strap connected.
+        // private readonly DispatcherTimer _simulationTimer = new();
+        // private readonly Random _rng = new();
+
+
+        private BleClient bleClient;
 
         public MainWindow()
         {
             InitializeComponent();
+            
+            Application currentApp = Application.Current;
 
-            _simulationTimer.Interval = TimeSpan.FromSeconds(1);
-            _simulationTimer.Tick += SimulationTimer_Tick;
+            App myApp = (App)currentApp;
+
+            bleClient = myApp.BleClient;
+            Console.WriteLine("creted a ble client");
+
+
         }
+
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
@@ -107,13 +120,14 @@ namespace woop_app
             // byte flags = reader.ReadByte();
             // bool isUInt16 = (flags & 0x01) != 0;
             // double bpm = isUInt16 ? reader.ReadUInt16() : reader.ReadByte();
-
+            double bpm = 5;
             Dispatcher.Invoke(() => UpdateHeartRate(bpm));
         }
 
         private void SimulationTimer_Tick(object sender, EventArgs e)
         {
-            double bpm = 60 + _rng.NextDouble() * 40;
+            //double bpm = 60 + _rng.NextDouble() * 40;
+            int bpm = 6;
             UpdateHeartRate(bpm);
         }
 

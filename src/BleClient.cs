@@ -5,17 +5,26 @@ using Windows.Devices.Enumeration;
 using System.Text;
 using Windows.Storage.Streams;
 using System;
+using System.Diagnostics;
 
 namespace woop
 {
-    public static class BleClient {
+    public  class BleClient {
         
+
+        public event Action Connected;
+        public event Action<int> HeartRateUpdated;
         static List<DeviceInformation> device_ids = new List<DeviceInformation>();
         static int devices = 0;
-    
+
+        public BleClient(){
+
+            Console.WriteLine("BLE CLIENT CREATED");
+
+        }
 
 
-        static public void startDeviceWatcher(){
+        public void startDeviceWatcher(){
             string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
 
             DeviceWatcher deviceWatcher = DeviceInformation.CreateWatcher(BluetoothLEDevice.GetDeviceSelectorFromPairingState(false),requestedProperties,DeviceInformationKind.AssociationEndpoint);
@@ -31,7 +40,7 @@ namespace woop
 
         }
 
-        public static async Task ConnectDevice(int device_number){
+        public async Task ConnectDevice(int device_number){
 
             Console.WriteLine("going to try and connect with device: " + device_number);
             Console.WriteLine("with name: " + device_ids[device_number].Name);
@@ -109,7 +118,7 @@ namespace woop
             return;
         }
 
-        static private void characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args){
+        private void characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args){
             Console.WriteLine("the value changed twin !");
 
             var reader = DataReader.FromBuffer(args.CharacteristicValue);
@@ -141,6 +150,7 @@ namespace woop
             }
 
             Console.WriteLine("HR: " + heartRate);
+            HeartRateUpdated?.Invoke(heartRate);
         }
 
         static void DeviceWatcher_Added(DeviceWatcher deviceWatcher, DeviceInformation deviceInformation){
