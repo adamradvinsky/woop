@@ -12,7 +12,8 @@ namespace woop_app
             get{
                 if (bleClient == null)
                 {
-                    BleClient bleClient = new BleClient();
+                    bleClient = new BleClient();
+                    Console.WriteLine("it was null");
                 } 
                 return bleClient;
             }

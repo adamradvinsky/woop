@@ -9,10 +9,11 @@ using System.Diagnostics;
 
 namespace woop
 {
-    public  class BleClient {
+    public class BleClient {
         
-
-        public event Action Connected;
+        
+        private DeviceInformation myWoopInformation;
+        public event Action<string>? Connected;
         public event Action<int> HeartRateUpdated;
         static List<DeviceInformation> device_ids = new List<DeviceInformation>();
         static int devices = 0;
@@ -20,6 +21,8 @@ namespace woop
         public BleClient(){
 
             Console.WriteLine("BLE CLIENT CREATED");
+            //myWoopInformation.Id = ;
+
 
         }
 
@@ -36,8 +39,21 @@ namespace woop
 
             Console.WriteLine("Device Watcher has started");
             deviceWatcher.Start();
-            Console.WriteLine("Device Watcher has done started");
+            Console.WriteLine("Device Watcher has finished");
 
+        }
+
+        public async Task ScanForDevice(){
+            startDeviceWatcher();
+
+            // wait 20s 
+
+            //  bro i couldnt find a woop
+
+        }
+
+        public void testTerminalMessage(){
+            Console.WriteLine("skib test skib");
         }
 
         public async Task ConnectDevice(int device_number){
@@ -62,8 +78,6 @@ namespace woop
                     i++;
                     
                 }
-
-
 
                 Console.WriteLine("Choose a service");
                 String input = Console.ReadLine();
@@ -153,12 +167,20 @@ namespace woop
             HeartRateUpdated?.Invoke(heartRate);
         }
 
-        static void DeviceWatcher_Added(DeviceWatcher deviceWatcher, DeviceInformation deviceInformation){
-            
-            Console.WriteLine("added");
-            Console.WriteLine("number: " + devices + "  id: " + deviceInformation.Id + " name: " + deviceInformation.Name);
-            device_ids.Add(deviceInformation);
-            devices++;
+        private void DeviceWatcher_Added(DeviceWatcher deviceWatcher, DeviceInformation deviceInformation){
+
+            // check to see if it is a whoop 
+            if (deviceInformation.Id == "BluetoothLE#BluetoothLEb8:5c:5c:01:c3:98-ed:07:78:b3:74:74")
+            {
+                Console.WriteLine("omfg i found a whoop !!!!!!!!!!!!");
+                // say device found
+                Connected?.Invoke("Connected");
+
+            } else {
+                Console.WriteLine("number: " + devices + "  id: " + deviceInformation.Id + " name: " + deviceInformation.Name);
+                device_ids.Add(deviceInformation);
+                devices++;
+            }
 
         }
 
@@ -171,7 +193,6 @@ namespace woop
             //Console.WriteLine("removed: " + deviceInformation.Id.Name);
             devices--;
         }
-
-        
+     
     }
 }

@@ -47,69 +47,30 @@ namespace woop_app
             App myApp = (App)currentApp;
 
             bleClient = myApp.BleClient;
-            Console.WriteLine("creted a ble client");
-
 
         }
 
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
+            Console.WriteLine("bleClient is null: " + (bleClient == null));
             ConnectButton.IsEnabled = false;
-            StatusText.Text = "bruh...";
+
+            bleClient.Connected += changeStatusText;
+            
+
+            bleClient.ScanForDevice();
+            //bleClient.testTerminalMessage();
+            changeStatusText("broski");
+
             StatusText.Foreground = Brushes.Yellow;
+            //StatusText.Text = "bruh...";
 
-            // try
-            // {
-            //     string selector = BluetoothLEDevice.GetDeviceSelectorFromDeviceName("WHOOP");
-            //     DeviceInformationCollection devices = await DeviceInformation.FindAllAsync(selector);
+        }
 
-            //     if (devices.Count == 0)
-            //     {
-            //         StatusText.Text = "No WHOOP device found - showing simulated data";
-            //         StatusText.Foreground = Brushes.Orange;
-            //         _simulationTimer.Start();
-            //         return;
-            //     }
-
-            //     _device = await BluetoothLEDevice.FromIdAsync(devices[0].Id);
-            //     var servicesResult = await _device.GetGattServicesForUuidAsync(HeartRateServiceUuid);
-
-            //     if (servicesResult.Status != GattCommunicationStatus.Success || servicesResult.Services.Count == 0)
-            //     {
-            //         StatusText.Text = "Connected, but HR service not found (likely proprietary - update the UUIDs)";
-            //         StatusText.Foreground = Brushes.Orange;
-            //         return;
-            //     }
-
-            //     var service = servicesResult.Services[0];
-            //     var charResult = await service.GetCharacteristicsForUuidAsync(HeartRateMeasurementCharUuid);
-
-            //     if (charResult.Status != GattCommunicationStatus.Success || charResult.Characteristics.Count == 0)
-            //     {
-            //         StatusText.Text = "Service found, but no matching characteristic";
-            //         StatusText.Foreground = Brushes.Orange;
-            //         return;
-            //     }
-
-            //     _heartRateCharacteristic = charResult.Characteristics[0];
-            //     _heartRateCharacteristic.ValueChanged += HeartRateCharacteristic_ValueChanged;
-            //     await _heartRateCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
-            //         GattClientCharacteristicConfigurationDescriptorValue.Notify);
-
-            //     StatusText.Text = "Connected";
-            //     StatusText.Foreground = Brushes.LightGreen;
-            // }
-            // catch (Exception ex)
-            // {
-            //     StatusText.Text = $"Connection failed: {ex.Message} - showing simulated data";
-            //     StatusText.Foreground = Brushes.Red;
-            //     _simulationTimer.Start();
-            // }
-            // finally
-            // {
-            //     ConnectButton.IsEnabled = true;
-            // }
+        public void changeStatusText(string new_text){
+            Console.WriteLine("trying to change it to: " + new_text);
+            StatusText.Text = new_text;
         }
 
         private void HeartRateCharacteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
@@ -133,86 +94,10 @@ namespace woop_app
 
         private void UpdateHeartRate(double bpm)
         {
-            // HeartRateText.Text = $"{bpm:0} bpm";
-
-            // _heartRateHistory.Add(bpm);
-            // if (_heartRateHistory.Count > MaxHistoryPoints)
-            //     _heartRateHistory.RemoveAt(0);
-
-            // // HRV isn't part of the standard HR profile - placeholder until you pull
-            // // it from WHOOP's own characteristic.
-            // HrvText.Text = "-- ms";
-
-            // double avg = _heartRateHistory.Average();
-            // RestValueText.Text = $"{Math.Clamp(100 - (avg - 60), 0, 100):0}%";
-            // ChargeValueText.Text = $"{Math.Clamp(avg, 0, 100):0}%";
-            // EffortValueText.Text = $"{avg / 10:0.0}";
-
-            // DrawGraph();
         }
 
-        private void GraphCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            DrawGraph();
-        }
+      
 
-        private void DrawGraph()
-        {
-            // GraphCanvas.Children.Clear();
-
-            // if (_heartRateHistory.Count < 2)
-            //     return;
-
-            // double width = GraphCanvas.ActualWidth;
-            // double height = GraphCanvas.ActualHeight;
-            // if (width <= 0 || height <= 0)
-            //     return;
-
-            // double min = _heartRateHistory.Min();
-            // double max = _heartRateHistory.Max();
-            // if (Math.Abs(max - min) < 1) max = min + 1;
-
-            // double xStep = width / (MaxHistoryPoints - 1);
-
-            // var linePoints = new PointCollection();
-            // for (int i = 0; i < _heartRateHistory.Count; i++)
-            // {
-            //     double x = i * xStep;
-            //     double y = height - ((_heartRateHistory[i] - min) / (max - min) * height);
-            //     linePoints.Add(new Point(x, y));
-            // }
-
-            // var polyline = new Polyline
-            // {
-            //     Points = linePoints,
-            //     Stroke = Brushes.Red,
-            //     StrokeThickness = 2
-            // };
-            // GraphCanvas.Children.Add(polyline);
-
-            // double avg = _heartRateHistory.Average();
-            // double avgY = height - ((avg - min) / (max - min) * height);
-            // var avgLine = new Line
-            // {
-            //     X1 = 0,
-            //     Y1 = avgY,
-            //     X2 = width,
-            //     Y2 = avgY,
-            //     Stroke = Brushes.Cyan,
-            //     StrokeThickness = 1,
-            //     StrokeDashArray = new DoubleCollection { 4, 2 }
-            // };
-            // GraphCanvas.Children.Add(avgLine);
-
-            // var avgLabel = new TextBlock
-            // {
-            //     Text = $"avg: {avg:0.0}",
-            //     Foreground = Brushes.Cyan,
-            //     FontSize = 12
-            // };
-            // Canvas.SetLeft(avgLabel, 5);
-            // Canvas.SetTop(avgLabel, Math.Max(0, avgY - 15));
-            // GraphCanvas.Children.Add(avgLabel);
-        }
+        
     }
 }
