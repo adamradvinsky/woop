@@ -50,13 +50,14 @@ namespace woop_app
 
         }
 
+        List<string> test = new List<string>{ "Apple", "Banana", "Cherry", "Date" };
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("bleClient is null: " + (bleClient == null));
             ConnectButton.IsEnabled = false;
 
-            bleClient.Connected += changeStatusText;
+            bleClient.Pairable_Devices += updatePairableDevices;
             
 
             bleClient.ScanForDevice();
@@ -65,6 +66,7 @@ namespace woop_app
 
             StatusText.Foreground = Brushes.Yellow;
             //StatusText.Text = "bruh...";
+            updatePairableDevices(test);
 
         }
 
@@ -94,6 +96,22 @@ namespace woop_app
 
         private void UpdateHeartRate(double bpm)
         {
+    
+        }
+
+        private void updatePairableDevices(List<string> items){
+            //List<string> items = new List<string> { "Apple", "Banana", "Cherry", "Date" };
+
+            Console.WriteLine("list bruh");
+            // 2. Create the UI ListBox control
+            ListBox myListBox = new ListBox();
+
+            // 3. Give the items to the ListBox
+            myListBox.ItemsSource = items;
+
+            // 4. Add the ListBox into your XAML Grid dynamically
+            Pairable_Devices.Children.Add(myListBox);
+            
         }
 
       

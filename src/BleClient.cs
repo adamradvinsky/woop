@@ -11,8 +11,15 @@ namespace woop
 {
     public class BleClient {
         
+        public enum status{
+            Scanning,
+            Pairing,
+            Connected
+        }
         
         private DeviceInformation myWoopInformation;
+        
+        public event Action<List<string>>? Pairable_Devices;
         public event Action<string>? Connected;
         public event Action<int> HeartRateUpdated;
         static List<DeviceInformation> device_ids = new List<DeviceInformation>();
@@ -167,6 +174,8 @@ namespace woop
             HeartRateUpdated?.Invoke(heartRate);
         }
 
+        List<string> device_list = new List<string>{"phone"};
+
         private void DeviceWatcher_Added(DeviceWatcher deviceWatcher, DeviceInformation deviceInformation){
 
             // check to see if it is a whoop 
@@ -179,6 +188,8 @@ namespace woop
             } else {
                 Console.WriteLine("number: " + devices + "  id: " + deviceInformation.Id + " name: " + deviceInformation.Name);
                 device_ids.Add(deviceInformation);
+                device_list.Add(deviceInformation.Name);
+                Pairable_Devices?.Invoke(device_list);
                 devices++;
             }
 

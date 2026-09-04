@@ -47,6 +47,10 @@
             </Border>
         </Grid>
 
+        <Grid x:Name="Pairable_Devices">
+        
+        </Grid>
+
         <!-- Heart Rate / HRV -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
@@ -68,6 +72,7 @@
                 </StackPanel>
             </Border>
         </Grid>
+
 
         <!-- Graph
         <Border Grid.Row="3" BorderBrush="White" BorderThickness="2" Margin="5">
