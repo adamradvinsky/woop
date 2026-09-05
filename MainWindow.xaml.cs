@@ -102,6 +102,10 @@ namespace woop_app
         private void updatePairableDevices(List<string> items){
             //List<string> items = new List<string> { "Apple", "Banana", "Cherry", "Date" };
 
+            if (!Pairable_Devices.Dispatcher.CheckAccess()) {
+                Pairable_Devices.Dispatcher.Invoke(() => updatePairableDevices(items));
+            } 
+
             Console.WriteLine("list bruh");
             // 2. Create the UI ListBox control
             ListBox myListBox = new ListBox();
@@ -113,6 +117,7 @@ namespace woop_app
             Pairable_Devices.Children.Add(myListBox);
             
         }
+
 
       
 

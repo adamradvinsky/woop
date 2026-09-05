@@ -178,20 +178,13 @@ namespace woop
 
         private void DeviceWatcher_Added(DeviceWatcher deviceWatcher, DeviceInformation deviceInformation){
 
-            // check to see if it is a whoop 
-            if (deviceInformation.Id == "BluetoothLE#BluetoothLEb8:5c:5c:01:c3:98-ed:07:78:b3:74:74")
-            {
-                Console.WriteLine("omfg i found a whoop !!!!!!!!!!!!");
-                // say device found
-                Connected?.Invoke("Connected");
+          
+            Console.WriteLine("number: " + devices + "  id: " + deviceInformation.Id + " name: " + deviceInformation.Name);
+            device_ids.Add(deviceInformation);
+            device_list.Add(deviceInformation.Name);
+            Pairable_Devices?.Invoke(device_list);
+            devices++;
 
-            } else {
-                Console.WriteLine("number: " + devices + "  id: " + deviceInformation.Id + " name: " + deviceInformation.Name);
-                device_ids.Add(deviceInformation);
-                device_list.Add(deviceInformation.Name);
-                Pairable_Devices?.Invoke(device_list);
-                devices++;
-            }
 
         }
 
