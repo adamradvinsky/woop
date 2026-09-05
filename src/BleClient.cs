@@ -6,6 +6,7 @@ using System.Text;
 using Windows.Storage.Streams;
 using System;
 using System.Diagnostics;
+using woop_app;
 
 namespace woop
 {
@@ -19,16 +20,15 @@ namespace woop
         
         private DeviceInformation myWoopInformation;
         
-        public event Action<List<string>>? Pairable_Devices;
+        public event Action<DeviceInformation>? Pairable_Devices_Add;
         public event Action<string>? Connected;
-        public event Action<int> HeartRateUpdated;
+        public event Action<int> HeartRateUpdated;      
         static List<DeviceInformation> device_ids = new List<DeviceInformation>();
         static int devices = 0;
 
         public BleClient(){
 
             Console.WriteLine("BLE CLIENT CREATED");
-            //myWoopInformation.Id = ;
 
 
         }
@@ -63,80 +63,101 @@ namespace woop
             Console.WriteLine("skib test skib");
         }
 
-        public async Task ConnectDevice(int device_number){
+        public async Task<bool> ConnectDevice(DeviceInformation device){
 
-            Console.WriteLine("going to try and connect with device: " + device_number);
-            Console.WriteLine("with name: " + device_ids[device_number].Name);
+            Console.WriteLine("going to try and connect with device: " + device.Id);
+            Console.WriteLine("with name: " + device.Name);
 
-            BluetoothLEDevice bluetoothLeDevice = await BluetoothLEDevice.FromIdAsync(device_ids[device_number].Id);
-            
-            GattDeviceServicesResult result = await bluetoothLeDevice.GetGattServicesAsync();
-            
+            // checks to see if paired or not
+            if(!device.Pairing.IsPaired){
+                DevicePairingResult result = await device.Pairing.PairAsync(DevicePairingProtectionLevel.EncryptionAndAuthentication);
 
-            if (result.Status == GattCommunicationStatus.Success)
-            {
+                // is pairing successful?
+                if (result.Status == DevicePairingResultStatus.Paired){
+                    Console.WriteLine("DEVICE IS NOW PAIRED");
+                    return true;
 
-                // gets services
-                var services = result.Services;
-                int i = 0;
-                foreach (var service in services)
-                {
-                    Console.WriteLine("service " + i + " uuid: "+ service.Uuid);
-                    i++;
-                    
+                } else {
+                    Console.WriteLine("COULDNT PAIR TO DEVICE");
+                    return false;
                 }
 
-                Console.WriteLine("Choose a service");
-                String input = Console.ReadLine();
-                int val = int.Parse(input);
-
-                var chosen_service = services[val];
-
-                GattCharacteristicsResult char_properties = await chosen_service.GetCharacteristicsAsync();
-
-
-                if (char_properties.Status == GattCommunicationStatus.Success)
-                {
-                    // get characteristics to this service
-                    var characteristics = char_properties.Characteristics;
-                    Console.WriteLine("characteristics: " + characteristics);
-
-                    foreach (var characteristic in characteristics)
-                    {
-                        Console.WriteLine("characteristic uuid: "+ characteristic.Uuid);
-                    }
-
-
-                    // choose a characteristic
-                    Console.WriteLine("Choose a characteristic");
-                    input = Console.ReadLine();
-                    val = int.Parse(input);                
-                    
-                    var chosen_characteristic = characteristics[val];
-
-
-                    GattCharacteristicProperties properties = chosen_characteristic.CharacteristicProperties;
-                    
-
-                    if(properties.HasFlag(GattCharacteristicProperties.Notify))
-                    {
-                        GattCommunicationStatus status = await chosen_characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
-
-                        // subscribe to the event that the value changed
-                        if(status == GattCommunicationStatus.Success){
-                            Console.WriteLine("bleh");
-                            chosen_characteristic.ValueChanged += characteristic_ValueChanged;
-                        }
-                    }
-                //await Task.Delay(10000);
-                input = Console.ReadLine(); 
-
-
-                }
+            } else {
+                Console.WriteLine("DEVICE IS ALREADY PAIRED");
+                return false;
             }
 
 
-            return;
+            // BluetoothLEDevice bluetoothLeDevice = await BluetoothLEDevice.FromIdAsync(device_ids[device_number].Id);
+            
+            // // get services
+            // GattDeviceServicesResult result = await bluetoothLeDevice.GetGattServicesAsync();
+            
+
+            // if (result.Status == GattCommunicationStatus.Success)
+            // {
+
+            //     // gets services
+            //     var services = result.Services;
+            //     int i = 0;
+            //     foreach (var service in services)
+            //     {
+            //         Console.WriteLine("service " + i + " uuid: "+ service.Uuid);
+            //         i++;
+                    
+            //     }
+
+            //     Console.WriteLine("Choose a service");
+            //     String input = Console.ReadLine();
+            //     int val = int.Parse(input);
+
+            //     var chosen_service = services[val];
+
+            //     GattCharacteristicsResult char_properties = await chosen_service.GetCharacteristicsAsync();
+
+
+            //     if (char_properties.Status == GattCommunicationStatus.Success)
+            //     {
+            //         // get characteristics to this service
+            //         var characteristics = char_properties.Characteristics;
+            //         Console.WriteLine("characteristics: " + characteristics);
+
+            //         foreach (var characteristic in characteristics)
+            //         {
+            //             Console.WriteLine("characteristic uuid: "+ characteristic.Uuid);
+            //         }
+
+
+            //         // choose a characteristic
+            //         Console.WriteLine("Choose a characteristic");
+            //         input = Console.ReadLine();
+            //         val = int.Parse(input);                
+                    
+            //         var chosen_characteristic = characteristics[val];
+
+
+            //         GattCharacteristicProperties properties = chosen_characteristic.CharacteristicProperties;
+                    
+
+            //         if(properties.HasFlag(GattCharacteristicProperties.Notify))
+            //         {
+            //             GattCommunicationStatus status = await chosen_characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+
+            //             // subscribe to the event that the value changed
+            //             if(status == GattCommunicationStatus.Success){
+            //                 Console.WriteLine("bleh");
+            //                 chosen_characteristic.ValueChanged += characteristic_ValueChanged;
+            //             }
+            //         }
+            //     //await Task.Delay(10000);
+            //     input = Console.ReadLine(); 
+
+
+            //     }
+            // }
+
+
+            // return true;
         }
 
         private void characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args){
@@ -174,16 +195,16 @@ namespace woop
             HeartRateUpdated?.Invoke(heartRate);
         }
 
-        List<string> device_list = new List<string>{"phone"};
+        
 
         private void DeviceWatcher_Added(DeviceWatcher deviceWatcher, DeviceInformation deviceInformation){
 
           
-            Console.WriteLine("number: " + devices + "  id: " + deviceInformation.Id + " name: " + deviceInformation.Name);
-            device_ids.Add(deviceInformation);
-            device_list.Add(deviceInformation.Name);
-            Pairable_Devices?.Invoke(device_list);
-            devices++;
+            //Console.WriteLine("number: " + devices + "  id: " + deviceInformation.Id + " name: " + deviceInformation.Name);
+            //device_ids.Add(deviceInformation);
+            //device_list.Add(deviceInformation.Name);
+            Pairable_Devices_Add?.Invoke(deviceInformation);
+            //devices++;
 
 
         }

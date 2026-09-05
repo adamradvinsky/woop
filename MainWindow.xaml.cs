@@ -16,26 +16,7 @@ namespace woop_app
 {
     public partial class MainWindow : Window
     {
-
-        
-        // Standard Bluetooth SIG Heart Rate service/characteristic UUIDs, used as a
-        // fallback. WHOOP almost certainly exposes its own proprietary GATT service
-        // instead of this standard profile - swap these once you've pulled the real
-        // UUIDs out of your reverse-engineering work.
-        // private static readonly Guid HeartRateServiceUuid = GattServiceUuids.HeartRate;
-        // private static readonly Guid HeartRateMeasurementCharUuid = GattCharacteristicUuids.HeartRateMeasurement;
-
-        // private BluetoothLEDevice _device;
-        // private GattCharacteristic _heartRateCharacteristic;
-
-        // private readonly List<double> _heartRateHistory = new();
-        // private const int MaxHistoryPoints = 60;
-
-        // // Fakes incoming BPM data so the UI can be exercised without a strap connected.
-        // private readonly DispatcherTimer _simulationTimer = new();
-        // private readonly Random _rng = new();
-
-
+        public event Action<int> ui_Connect_Device;
         private BleClient bleClient;
 
         public MainWindow()
@@ -57,16 +38,12 @@ namespace woop_app
             Console.WriteLine("bleClient is null: " + (bleClient == null));
             ConnectButton.IsEnabled = false;
 
-            bleClient.Pairable_Devices += updatePairableDevices;
+            bleClient.Pairable_Devices_Add += updatePairableDevices;
             
 
             bleClient.ScanForDevice();
-            //bleClient.testTerminalMessage();
-            changeStatusText("broski");
 
             StatusText.Foreground = Brushes.Yellow;
-            //StatusText.Text = "bruh...";
-            updatePairableDevices(test);
 
         }
 
@@ -77,12 +54,7 @@ namespace woop_app
 
         private void HeartRateCharacteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
-            // Standard HR measurement payload: byte 0 = flags, then either a uint8 or
-            // uint16 BPM value depending on flag bit 0.
-            // DataReader reader = DataReader.FromBuffer(args.CharacteristicValue);
-            // byte flags = reader.ReadByte();
-            // bool isUInt16 = (flags & 0x01) != 0;
-            // double bpm = isUInt16 ? reader.ReadUInt16() : reader.ReadByte();
+           
             double bpm = 5;
             Dispatcher.Invoke(() => UpdateHeartRate(bpm));
         }
@@ -99,28 +71,114 @@ namespace woop_app
     
         }
 
-        private void updatePairableDevices(List<string> items){
-            //List<string> items = new List<string> { "Apple", "Banana", "Cherry", "Date" };
-
+        private void updatePairableDevices(DeviceInformation newDevice){
+           
             if (!Pairable_Devices.Dispatcher.CheckAccess()) {
-                Pairable_Devices.Dispatcher.Invoke(() => updatePairableDevices(items));
+                Pairable_Devices.Dispatcher.Invoke(() => updatePairableDevices(newDevice));
             } 
 
-            Console.WriteLine("list bruh");
-            // 2. Create the UI ListBox control
-            ListBox myListBox = new ListBox();
-
-            // 3. Give the items to the ListBox
-            myListBox.ItemsSource = items;
-
-            // 4. Add the ListBox into your XAML Grid dynamically
-            Pairable_Devices.Children.Add(myListBox);
+            Pairable_Devices.Items.Add(newDevice);
+            Console.WriteLine("added: " + newDevice.Name);
             
         }
 
+        private void printServices(){
 
-      
+        }
 
-        
+
+        private async void Pairable_Devices_SelectionChanged(object sender, SelectionChangedEventArgs e){
+            Console.WriteLine("the selected item is: " + ((DeviceInformation)Pairable_Devices.SelectedItem).Name);
+            
+            // // say that you are connecting
+            // // disable list so cant click
+            
+            Pairable_Devices.IsEnabled = false;
+
+            try
+            {
+                bool isConnected = await bleClient.ConnectDevice((DeviceInformation)Pairable_Devices.SelectedItem);
+
+                if(isConnected){
+                    StatusText.Text = "Connected";
+                    Console.WriteLine("we connected baby");
+                } else {
+                    StatusText.Text = "Failed";
+                    Console.WriteLine("we couldnt connect");
+
+                }
+
+                
+            }
+            catch (System.Exception)
+            {
+                
+                throw;
+            } 
+            finally {
+                // enable everything
+                // say couldnt connect/
+                Pairable_Devices.IsEnabled = true;
+                //StatusText.Text = "connection failed";
+            }
+
+
+        }
     }
 }
+
+
+/*
+
+        
+<!-- <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" BorderBrush="White" BorderThickness="2" Margin="5">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="REST" Foreground="Gray" FontSize="16" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="RestValueText" Text="--%" Foreground="LightGreen" FontSize="40" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" BorderBrush="White" BorderThickness="2" Margin="5">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="CHARGE" Foreground="Gray" FontSize="16" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="ChargeValueText" Text="--%" Foreground="Cyan" FontSize="40" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" BorderBrush="White" BorderThickness="2" Margin="5">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="EFFORT" Foreground="Gray" FontSize="16" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="EffortValueText" Text="--" Foreground="Orange" FontSize="40" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid> -->
+      
+      
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" BorderBrush="White" BorderThickness="2" Margin="5">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="HEART RATE" Foreground="Gray" FontSize="14" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="HeartRateText" Text="-- bpm" Foreground="Red" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" BorderBrush="White" BorderThickness="2" Margin="5">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="HRV" Foreground="Gray" FontSize="14" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="HrvText" Text="-- ms" Foreground="Yellow" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>-->
+        */
