@@ -133,12 +133,7 @@ namespace woop_app
         {
         
             // TODO: Save application state and stop any background BLE operations here
-            Console.WriteLine("unpairing ");
-            DeviceUnpairingResult result = await bleClient.connectedDevice.Pairing.UnpairAsync();
-            if (bleClient.connectedDevice != null)
-            {
-                bleClient.connectedDevice = null;
-            }
+            bleClient.DisconnectDevice();
         } 
     }
 }

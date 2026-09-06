@@ -19,7 +19,7 @@ namespace woop
             Disconnected
         }
         
-        public DeviceInformation connectedDevice;
+        public DeviceInformation connected_Device;
         private DeviceInformation myWoopInformation;
         
         public event Action<DeviceInformation>? Pairable_Devices_Add;
@@ -64,6 +64,18 @@ namespace woop
         public void testTerminalMessage(){
             Console.WriteLine("skib test skib");
         }
+        
+        public async void DisconnectDevice(){
+            Console.WriteLine("unpairing ");
+            
+            DeviceUnpairingResult result = await connected_Device.Pairing.UnpairAsync();
+            
+            if (connected_Device != null)
+            {
+                connected_Device = null;
+            } 
+
+        }
 
         public async Task<bool> ConnectDevice(DeviceInformation device){
 
@@ -73,7 +85,8 @@ namespace woop
             // checks to see if paired or not
             if(!device.Pairing.IsPaired){
                 DevicePairingResult result = await device.Pairing.PairAsync(DevicePairingProtectionLevel.EncryptionAndAuthentication);
-                connectedDevice = device;
+                connected_Device = device;
+
                 // is pairing successful?
                 if (result.Status == DevicePairingResultStatus.Paired){
                     Console.WriteLine("DEVICE IS NOW PAIRED");
