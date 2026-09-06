@@ -12,12 +12,14 @@ namespace woop
 {
     public class BleClient {
         
-        public enum status{
+        public enum whoop_status{
             Scanning,
             Pairing,
-            Connected
+            Connected,
+            Disconnected
         }
         
+        public DeviceInformation connectedDevice;
         private DeviceInformation myWoopInformation;
         
         public event Action<DeviceInformation>? Pairable_Devices_Add;
@@ -71,7 +73,7 @@ namespace woop
             // checks to see if paired or not
             if(!device.Pairing.IsPaired){
                 DevicePairingResult result = await device.Pairing.PairAsync(DevicePairingProtectionLevel.EncryptionAndAuthentication);
-
+                connectedDevice = device;
                 // is pairing successful?
                 if (result.Status == DevicePairingResultStatus.Paired){
                     Console.WriteLine("DEVICE IS NOW PAIRED");
@@ -203,8 +205,12 @@ namespace woop
             //Console.WriteLine("number: " + devices + "  id: " + deviceInformation.Id + " name: " + deviceInformation.Name);
             //device_ids.Add(deviceInformation);
             //device_list.Add(deviceInformation.Name);
-            Pairable_Devices_Add?.Invoke(deviceInformation);
+            if (deviceInformation.Name != "")
+            {
+                Pairable_Devices_Add?.Invoke(deviceInformation);
+            }
             //devices++;
+            
 
 
         }

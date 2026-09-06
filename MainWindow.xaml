@@ -19,14 +19,13 @@
 
 
         <ListBox x:Name="Pairable_Devices" 
-         Grid.Row="1" 
+         Grid.Row="5" 
          Background="#222222" 
          Foreground="White" 
          DisplayMemberPath="Name"
          SelectionChanged="Pairable_Devices_SelectionChanged">
         </ListBox>
 
-        
 
 
         <!-- Graph

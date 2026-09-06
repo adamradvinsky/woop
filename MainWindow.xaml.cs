@@ -9,6 +9,7 @@ using System.Windows.Threading;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
+using Microsoft.UI.Xaml;
 using Windows.Storage.Streams;
 using woop;
 
@@ -22,7 +23,8 @@ namespace woop_app
         public MainWindow()
         {
             InitializeComponent();
-            
+            this.Closed += MainWindow_Closed;
+
             Application currentApp = Application.Current;
 
             App myApp = (App)currentApp;
@@ -124,6 +126,20 @@ namespace woop_app
 
 
         }
+
+        
+
+        private async void MainWindow_Closed(object sender, object args)
+        {
+        
+            // TODO: Save application state and stop any background BLE operations here
+            Console.WriteLine("unpairing ");
+            DeviceUnpairingResult result = await bleClient.connectedDevice.Pairing.UnpairAsync();
+            if (bleClient.connectedDevice != null)
+            {
+                bleClient.connectedDevice = null;
+            }
+        } 
     }
 }
 
