@@ -1,0 +1,21 @@
+using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.Advertisement; 
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Devices.Enumeration;
+using System.Text;
+using Windows.Storage.Streams;
+using System;
+using System.Diagnostics;
+using woop_app;
+
+namespace woop
+{
+    public class WhoopClient{
+
+        public WhoopClient(){
+           
+        }
+
+    }
+
+}

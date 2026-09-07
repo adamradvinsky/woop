@@ -24,6 +24,8 @@ namespace woop_app
         {
             InitializeComponent();
             this.Closed += MainWindow_Closed;
+            AppDomain.CurrentDomain.ProcessExit +=  MainWindow_Closed;
+            AppDomain.CurrentDomain.UnhandledException += MainWindow_Closed;
 
             Application currentApp = Application.Current;
 
