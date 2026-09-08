@@ -11,7 +11,8 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Microsoft.UI.Xaml;
 using Windows.Storage.Streams;
-using woop;
+using ble;
+using strap;
 
 namespace woop_app
 {
@@ -19,6 +20,7 @@ namespace woop_app
     {
         public event Action<int> ui_Connect_Device;
         private BleClient bleClient;
+        private StrapClient strapClient;
 
         public MainWindow()
         {
@@ -32,6 +34,7 @@ namespace woop_app
             App myApp = (App)currentApp;
 
             bleClient = myApp.BleClient;
+            strapClient = myApp.StrapClient;
 
         }
 

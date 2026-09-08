@@ -7,8 +7,9 @@ using Windows.Storage.Streams;
 using System;
 using System.Diagnostics;
 using woop_app;
+using strap;
 
-namespace woop
+namespace ble
 {
     public class BleClient {
         
@@ -18,6 +19,10 @@ namespace woop
             Connected,
             Disconnected
         }
+ 
+
+
+        private StrapClient strapClient;
         
         public DeviceInformation connected_Device;
         private DeviceInformation myWoopInformation;
@@ -29,23 +34,7 @@ namespace woop
 
         private GattCharacteristic   bruh;
 
-/*
-        services
- uuid: 00001800-0000-1000-8000-00805f9b34fb
- uuid: 00001801-0000-1000-8000-00805f9b34fb
- 
- heartrate
- uuid: 0000180d-0000-1000-8000-00805f9b34fb
 
- device information
- uuid: 0000180a-0000-1000-8000-00805f9b34fb
-
- battery information
- uuid: 0000180f-0000-1000-8000-00805f9b34fb
-
- custom service !!
- uuid: fd4b0001-cce1-4033-93ce-002d5875f58a
-*/
 
         private Guid whoop_custom_service_uuid = new Guid("fd4b0001-cce1-4033-93ce-002d5875f58a");
 
@@ -53,8 +42,11 @@ namespace woop
         public event Action UnableToConnect;
         public event Action Disconnect;
 
+        
+        public event Action<GattDeviceServicesResult> Got_Services;
+
         public event Action<DeviceInformation>? Pairable_Devices_Add;
-        public event Action<int> HeartRateUpdated;      
+           
         static List<DeviceInformation> device_ids = new List<DeviceInformation>();
         static int devices = 0;
 
@@ -62,7 +54,7 @@ namespace woop
 
             Console.WriteLine("BLE CLIENT CREATED");
             Connected += GetDeviceServices;
-            Connected += DeviceIsConnected;
+
         }
 
 
@@ -150,10 +142,6 @@ namespace woop
         }
 
 
-        public void DeviceIsConnected(){
-            // set shit up idk
-
-        }
 
         public async void GetCharacteristics(GattDeviceService service){
             
@@ -176,24 +164,24 @@ namespace woop
                     GattCharacteristicProperties properties = characteristic.CharacteristicProperties;
 
 
-                    if(properties.HasFlag(GattCharacteristicProperties.Notify))
-                    {
-                        try
-                        {
-                            //GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                    // if(properties.HasFlag(GattCharacteristicProperties.Notify))
+                    // {
+                    //     try
+                    //     {
+                    //         //GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
 
-                            // subscribe to the event that the value changed
-                            // if(status == GattCommunicationStatus.Success){
-                            // }
-                                Console.WriteLine("subbed to the right char");
-                                characteristic.ValueChanged += Get_Data;
-                        }
-                        catch (System.Exception)
-                        {
-                            Console.WriteLine("something messed up twin in getting the char to sub to get data");
-                            throw;
-                        }
-                    }
+                    //         // subscribe to the event that the value changed
+                    //         // if(status == GattCommunicationStatus.Success){
+                    //         // }
+                    //             Console.WriteLine("subbed to the right char");
+                    //             characteristic.ValueChanged += Get_Data;
+                    //     }
+                    //     catch (System.Exception)
+                    //     {
+                    //         Console.WriteLine("something messed up twin in getting the char to sub to get data");
+                    //         throw;
+                    //     }
+                    // }
                 }
         }
         
@@ -204,8 +192,8 @@ namespace woop
             
             // get services
             GattDeviceServicesResult result = await bluetoothLeDevice.GetGattServicesAsync();
-            
-            Console.WriteLine(" tf");
+            Got_Services?.Invoke(result);
+        
             // if got services 
             if(result.Status == GattCommunicationStatus.Success){
                 
@@ -228,44 +216,6 @@ namespace woop
         private async void Get_Data(GattCharacteristic characteristic, GattValueChangedEventArgs a){
             return;
         }
-
-
-        private void Characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args){
-            Console.WriteLine("the value changed twin !");
-
-            var reader = DataReader.FromBuffer(args.CharacteristicValue);
-            byte[] data = new byte[reader.UnconsumedBufferLength];
-            reader.ReadBytes(data);
-
-            byte flags = data[0];
-            bool is16Bit = (flags & 0x1) == 1;
-            int offset = 1;
-
-            //Console.WriteLine(string.Join(", ", data));
-            ushort heartRate;
-
-            if (is16Bit)
-            {
-                Console.WriteLine("16 bit hr");
-                // uses 2 bytes for HR
-                byte a = data[1];
-                byte b = data[2];
-                heartRate = (UInt16)((a << 8) | b);
-
-                offset += 2;
-            } else {
-                // uses 1 byte for HR 
-                Console.WriteLine("8 bit hr");
-
-                heartRate = data[offset];
-                offset++;
-            }
-
-            Console.WriteLine("HR: " + heartRate);
-            HeartRateUpdated?.Invoke(heartRate);
-        }
-
-
         
 
         private void DeviceWatcher_Added(DeviceWatcher deviceWatcher, DeviceInformation deviceInformation){
