@@ -121,8 +121,10 @@ namespace ble
 
             } else {
                 Console.WriteLine("DEVICE IS ALREADY PAIRED");
-                UnableToConnect?.Invoke();
-                return false;
+                
+                connected_Device = device;
+                Connected?.Invoke();
+                return true;
             }
 
 
