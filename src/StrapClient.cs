@@ -45,6 +45,7 @@ namespace strap
 
         private GattDeviceServicesResult services;
         private GattCharacteristic notifyChar;
+        private GattDeviceService custom_service;
 
         public GattDeviceServicesResult getServices(){
             return services;
@@ -66,18 +67,38 @@ namespace strap
             foreach(var service in services.Services){
                 Console.WriteLine("my services: " + service.Uuid);
 
-                foreach(var charr in service.GetAllCharacteristics()){
-                    if(charr.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify)){
-                        notifyChar = charr;
-                    }
-                }
-                // foreach(var char in service.GetAllCharacteristics()){
+                if (service.Uuid.ToString() == "fd4b0001-cce1-4033-93ce-002d5875f58a")
+                    custom_service = service;
+                
             }
 
-            Console.WriteLine("notify char: " + notifyChar.Uuid);
-            ReadFromChar(notifyChar);
+            //Console.WriteLine("notify char: " + notifyChar.Uuid);
+            SubscribeToChars(custom_service);
+            //ReadFromChar(notifyChar);
 
         }
+
+        private async void SubscribeToChars(GattDeviceService service){
+
+            var characteristics = await service.GetCharacteristicsAsync();
+            foreach(var characteristic in characteristics.Characteristics){
+                if (!characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
+                    continue;
+                
+                characteristic.ValueChanged += Characteristic_ValueChanged;
+                var result = await characteristic.WriteClientCharacteristicConfigurationDescriptorWithResultAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+            }
+
+            Console.WriteLine("subscribed to notifications ");
+            SendHello();
+        }
+
+        private void SendHello(){
+            Console.WriteLine("sending hello yo ");
+
+        }
+        
+        
 
         private async void SendBuzzCommand(){
             
@@ -108,32 +129,34 @@ namespace strap
             byte[] data = new byte[reader.UnconsumedBufferLength];
             reader.ReadBytes(data);
 
-            byte flags = data[0];
-            bool is16Bit = (flags & 0x1) == 1;
-            int offset = 1;
+            Console.WriteLine(data);
 
-            //Console.WriteLine(string.Join(", ", data));
-            ushort heartRate;
+            // byte flags = data[0];
+            // bool is16Bit = (flags & 0x1) == 1;
+            // int offset = 1;
 
-            if (is16Bit)
-            {
-                Console.WriteLine("16 bit hr");
-                // uses 2 bytes for HR
-                byte a = data[1];
-                byte b = data[2];
-                heartRate = (UInt16)((a << 8) | b);
+            // //Console.WriteLine(string.Join(", ", data));
+            // ushort heartRate;
 
-                offset += 2;
-            } else {
-                // uses 1 byte for HR 
-                Console.WriteLine("8 bit hr");
+            // if (is16Bit)
+            // {
+            //     Console.WriteLine("16 bit hr");
+            //     // uses 2 bytes for HR
+            //     byte a = data[1];
+            //     byte b = data[2];
+            //     heartRate = (UInt16)((a << 8) | b);
 
-                heartRate = data[offset];
-                offset++;
-            }
+            //     offset += 2;
+            // } else {
+            //     // uses 1 byte for HR 
+            //     Console.WriteLine("8 bit hr");
 
-            Console.WriteLine("HR: " + heartRate);
-            //HeartRateUpdated?.Invoke(heartRate);
+            //     heartRate = data[offset];
+            //     offset++;
+            // }
+
+            // Console.WriteLine("HR: " + heartRate);
+            // //HeartRateUpdated?.Invoke(heartRate);
         }
 
 
