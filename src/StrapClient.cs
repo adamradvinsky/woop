@@ -23,6 +23,13 @@ namespace strap
            bleClient.Got_Services += setServices;
         }
 
+        public enum WhoopCommands
+        {
+            broski,
+            cowabunga,
+            skibidi
+        }
+
         
 
         /*
@@ -41,6 +48,14 @@ namespace strap
 
         custom service !!
         uuid: fd4b0001-cce1-4033-93ce-002d5875f58a
+            
+            CMD_TO_STRAP = characteristic uuid: fd4b0002-cce1-4033-93ce-002d5875f58a
+             = characteristic uuid: fd4b0003-cce1-4033-93ce-002d5875f58a
+             = characteristic uuid: fd4b0004-cce1-4033-93ce-002d5875f58a
+             = characteristic uuid: fd4b0005-cce1-4033-93ce-002d5875f58a
+             = characteristic uuid: fd4b0007-cce1-4033-93ce-002d5875f58a
+
+
         */
 
         /*
@@ -72,7 +87,7 @@ namespace strap
             
         }
 
-        public void ActivateStrap(){
+        public async Task ActivateStrap(){
 
 
             // subscribe to everything and shi
@@ -81,9 +96,18 @@ namespace strap
             foreach(var service in services.Services){
                 Console.WriteLine("my services: " + service.Uuid);
 
+                // if custom service
                 if (service.Uuid.ToString() == "fd4b0001-cce1-4033-93ce-002d5875f58a"){
                     custom_service = service;
                     Console.WriteLine("custom service uuid: " + custom_service.Uuid);
+
+                    Guid uuid = new Guid("fd4b0002-cce1-4033-93ce-002d5875f58a");
+                    GattCharacteristicsResult result = await service.GetCharacteristicsForUuidAsync(uuid); 
+                    var list = result.Characteristics;
+                    CMD_TO_STRAP = list[0];
+
+                    Console.WriteLine("CMD_TO_STRAP: " + CMD_TO_STRAP.Uuid);
+
                 }
             }
 
@@ -98,18 +122,18 @@ namespace strap
             var characteristics = await service.GetCharacteristicsAsync();
             foreach(var characteristic in characteristics.Characteristics){
 
-                if(string.Equals(characteristic.Uuid.ToString(), "fd4b0002-cce1-4033-93ce-002d5875f58a", StringComparison.OrdinalIgnoreCase)){
-                    Console.WriteLine("sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-                    CMD_TO_STRAP = characteristic;
-                }
+                // if(string.Equals(characteristic.Uuid.ToString(), "fd4b0002-cce1-4033-93ce-002d5875f58a", StringComparison.OrdinalIgnoreCase)){
+                //     Console.WriteLine("sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                //     CMD_TO_STRAP = characteristic;
+                // }
                 
-                Console.WriteLine("the char has a flag of: " + characteristic.CharacteristicProperties + " uuid: " + characteristic.Uuid);
                 
                 if (!characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
                     continue;
 
 
                 characteristic.ValueChanged += Characteristic_ValueChanged;
+                Console.WriteLine("the char has a flag of: " + characteristic.CharacteristicProperties + " uuid: " + characteristic.Uuid + " and i have subscribed");
                 var result = await characteristic.WriteClientCharacteristicConfigurationDescriptorWithResultAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
             }
 
@@ -137,7 +161,7 @@ namespace strap
         
         
 
-        private async void SendBuzzCommand(){
+        private async void Send_Buzz_Command_To_Strap(){
             
 
         }
@@ -158,6 +182,10 @@ namespace strap
 
         }
 
+        private void Send_Command_To_Strap(){
+
+        }
+
 
         private void Characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args){
             Console.WriteLine("the value changed twin !");
@@ -166,7 +194,7 @@ namespace strap
             byte[] data = new byte[reader.UnconsumedBufferLength];
             reader.ReadBytes(data);
 
-            Console.WriteLine(BitConverter.ToString(data));
+            Console.WriteLine("sender uuid: " + sender.Uuid + BitConverter.ToString(data));
 
             // byte flags = data[0];
             // bool is16Bit = (flags & 0x1) == 1;

@@ -60,8 +60,11 @@ namespace ble
 
         public void startDeviceWatcher(){
             string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
+            
+            string aqsSelector = "(System.Devices.Aep.IsPaired:=System.StructuredQueryType.Boolean#True " +
+                     "OR System.Devices.Aep.IsPaired:=System.StructuredQueryType.Boolean#False)";
 
-            DeviceWatcher deviceWatcher = DeviceInformation.CreateWatcher(BluetoothLEDevice.GetDeviceSelectorFromPairingState(false),requestedProperties,DeviceInformationKind.AssociationEndpoint);
+            DeviceWatcher deviceWatcher = DeviceInformation.CreateWatcher(aqsSelector ,requestedProperties ,DeviceInformationKind.AssociationEndpoint);
 
             deviceWatcher.Added += DeviceWatcher_Added;
             deviceWatcher.Updated += DeviceWatcher_Updated;
@@ -85,14 +88,14 @@ namespace ble
 
         
         public async void DisconnectDevice(){
-            Console.WriteLine("unpairing ");
+            // Console.WriteLine("unpairing ");
             
-            DeviceUnpairingResult result = await connected_Device.Pairing.UnpairAsync();
+            // DeviceUnpairingResult result = await connected_Device.Pairing.UnpairAsync();
             
-            if (connected_Device != null)
-            {
-                connected_Device = null;
-            } 
+            // if (connected_Device != null)
+            // {
+            //     connected_Device = null;
+            // } 
 
         }
 
