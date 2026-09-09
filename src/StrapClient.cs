@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using woop_app;
 using ble;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace strap
 {
@@ -43,6 +44,7 @@ namespace strap
         */
 
         private GattDeviceServicesResult services;
+        private GattCharacteristic notifyChar;
 
         public GattDeviceServicesResult getServices(){
             return services;
@@ -52,18 +54,50 @@ namespace strap
             this.services = services;
             
             if (this.services != null)
-                activateStrap();
+                ActivateStrap();
             
         }
 
-        public void activateStrap(){
+        public void ActivateStrap(){
 
             // subscribe to everything and shi
             Console.WriteLine("strap ready n shi");
 
             foreach(var service in services.Services){
                 Console.WriteLine("my services: " + service.Uuid);
+
+                foreach(var charr in service.GetAllCharacteristics()){
+                    if(charr.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify)){
+                        notifyChar = charr;
+                    }
+                }
+                // foreach(var char in service.GetAllCharacteristics()){
             }
+
+            Console.WriteLine("notify char: " + notifyChar.Uuid);
+            ReadFromChar(notifyChar);
+
+        }
+
+        private async void SendBuzzCommand(){
+            
+
+        }
+
+        private async void ReadFromChar(GattCharacteristic characteristic){
+            GattReadResult result = await characteristic.ReadValueAsync(BluetoothCacheMode.Uncached);
+            
+            Console.WriteLine(result.Status);
+
+            if (result.Status == GattCommunicationStatus.Success)
+            {
+                byte[] bytes = result.Value.ToArray();
+                Console.WriteLine(bytes);
+            }
+        }
+
+        private void WriteToChar(GattCharacteristic characteristic){
+
         }
 
 
