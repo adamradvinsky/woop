@@ -121,12 +121,6 @@ namespace strap
 
             var characteristics = await service.GetCharacteristicsAsync();
             foreach(var characteristic in characteristics.Characteristics){
-
-                // if(string.Equals(characteristic.Uuid.ToString(), "fd4b0002-cce1-4033-93ce-002d5875f58a", StringComparison.OrdinalIgnoreCase)){
-                //     Console.WriteLine("sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-                //     CMD_TO_STRAP = characteristic;
-                // }
-                
                 
                 if (!characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
                     continue;
@@ -166,6 +160,7 @@ namespace strap
 
         }
 
+
         private async void ReadFromChar(GattCharacteristic characteristic){
             GattReadResult result = await characteristic.ReadValueAsync(BluetoothCacheMode.Uncached);
             
@@ -183,7 +178,12 @@ namespace strap
         }
 
         private void Send_Command_To_Strap(){
+            
+            Console.WriteLine("sending a command");
 
+            // IBuffer buffer = new IBuffer();
+            // GattCommunicationStatus result = CMD_TO_STRAP.WriteValueAsync(buffer, GattWriteOption.WriteWithoutResponse);
+            
         }
 
 
