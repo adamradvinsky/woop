@@ -177,9 +177,12 @@ namespace strap
 
         }
 
-        private void Send_Command_To_Strap(){
+        private void Send_Command_To_Strap(WhoopCommands command, byte[] payload = null){
             
             Console.WriteLine("sending a command");
+
+            List<> message = new byte[] {0, comamand};
+
 
             // IBuffer buffer = new IBuffer();
             // GattCommunicationStatus result = CMD_TO_STRAP.WriteValueAsync(buffer, GattWriteOption.WriteWithoutResponse);
