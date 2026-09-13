@@ -19,131 +19,239 @@ namespace woop_app
     public partial class MainWindow : Window
     {
         public event Action<int> ui_Connect_Device;
+
         private BleClient bleClient;
         private StrapClient strapClient;
 
         public MainWindow()
         {
             InitializeComponent();
+
             this.Closed += MainWindow_Closed;
-            AppDomain.CurrentDomain.ProcessExit +=  MainWindow_Closed;
+            AppDomain.CurrentDomain.ProcessExit += MainWindow_Closed;
             AppDomain.CurrentDomain.UnhandledException += MainWindow_Closed;
 
             Application currentApp = Application.Current;
-
             App myApp = (App)currentApp;
 
             bleClient = myApp.BleClient;
             strapClient = myApp.StrapClient;
-
         }
 
-        List<string> test = new List<string>{ "Apple", "Banana", "Cherry", "Date" };
+        // ---------------------------------------------------------
+        // TEST DATA
+        // ---------------------------------------------------------
+
+        List<string> test = new List<string>
+        {
+            "Apple",
+            "Banana",
+            "Cherry",
+            "Date"
+        };
+
+        // ---------------------------------------------------------
+        // CONNECT BUTTON
+        // ---------------------------------------------------------
 
         private async void ConnectButton_Click(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("bleClient is null: " + (bleClient == null));
+
             ConnectButton.IsEnabled = false;
 
             bleClient.Pairable_Devices_Add += updatePairableDevices;
-            
 
             bleClient.ScanForDevice();
 
             StatusText.Foreground = Brushes.Yellow;
-
+            StatusText.Text = "Scanning...";
         }
 
-        public void changeStatusText(string new_text){
+        // ---------------------------------------------------------
+        // SEND HELLO BUTTON
+        // ---------------------------------------------------------
+
+        private void SendHelloButton_Click(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Send Hello button clicked");
+
+            StatusText.Text = "Sending Hello...";
+            StatusText.Foreground = Brushes.Yellow;
+
+            // TODO:
+            // Add BLE command for "Hello" here.
+            strapClient.Send_Hello();
+
+            // Temporary test
+            Console.WriteLine("HELLO");
+
+            StatusText.Text = "Hello sent";
+            StatusText.Foreground = Brushes.LightGreen;
+        }
+
+        // ---------------------------------------------------------
+        // SEND COMMAND BUTTON
+        // ---------------------------------------------------------
+
+        private void SendCommandButton_Click(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Send Command button clicked");
+
+            StatusText.Text = "Sending command...";
+            StatusText.Foreground = Brushes.Yellow;
+
+            // TODO:
+            strapClient.Send_Buzz_Command_To_Strap();
+            // Add actual BLE command here.
+
+            // Temporary test
+            Console.WriteLine("COMMAND");
+
+            StatusText.Text = "Command sent";
+            StatusText.Foreground = Brushes.LightGreen;
+        }
+
+        // ---------------------------------------------------------
+        // STATUS TEXT
+        // ---------------------------------------------------------
+
+        public void changeStatusText(string new_text)
+        {
             Console.WriteLine("trying to change it to: " + new_text);
+
             StatusText.Text = new_text;
         }
 
-        private void HeartRateCharacteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
+        // ---------------------------------------------------------
+        // HEART RATE
+        // ---------------------------------------------------------
+
+        private void HeartRateCharacteristic_ValueChanged(
+            GattCharacteristic sender,
+            GattValueChangedEventArgs args)
         {
-           
             double bpm = 5;
+
             Dispatcher.Invoke(() => UpdateHeartRate(bpm));
         }
 
         private void SimulationTimer_Tick(object sender, EventArgs e)
         {
-            //double bpm = 60 + _rng.NextDouble() * 40;
             int bpm = 6;
+
             UpdateHeartRate(bpm);
         }
 
         private void UpdateHeartRate(double bpm)
         {
-    
+            // TODO:
+            // Update heart rate UI here.
         }
 
-        private void updatePairableDevices(DeviceInformation newDevice){
-           
-            if (!Pairable_Devices.Dispatcher.CheckAccess()) {
-                Pairable_Devices.Dispatcher.Invoke(() => updatePairableDevices(newDevice));
-            } 
+        // ---------------------------------------------------------
+        // BLE DEVICE DISCOVERY
+        // ---------------------------------------------------------
+
+        private void updatePairableDevices(DeviceInformation newDevice)
+        {
+            if (!Pairable_Devices.Dispatcher.CheckAccess())
+            {
+                Pairable_Devices.Dispatcher.Invoke(
+                    () => updatePairableDevices(newDevice)
+                );
+
+                return;
+            }
 
             Pairable_Devices.Items.Add(newDevice);
-            Console.WriteLine("added: " + newDevice.Name);
-            
+
+            //Console.WriteLine("added: " + newDevice.Name);
         }
 
-        private void printServices(){
+        // ---------------------------------------------------------
+        // SERVICES
+        // ---------------------------------------------------------
 
+        private void printServices()
+        {
+            // TODO:
+            // Print discovered GATT services here.
         }
 
+        // ---------------------------------------------------------
+        // DEVICE SELECTION / CONNECTION
+        // ---------------------------------------------------------
 
-        private async void Pairable_Devices_SelectionChanged(object sender, SelectionChangedEventArgs e){
-            Console.WriteLine("the selected item is: " + ((DeviceInformation)Pairable_Devices.SelectedItem).Name);
-            
-            // // say that you are connecting
-            // // disable list so cant click
-            
+        private async void Pairable_Devices_SelectionChanged(
+            object sender,
+            SelectionChangedEventArgs e)
+        {
+            if (Pairable_Devices.SelectedItem == null)
+                return;
+
+            DeviceInformation selectedDevice =
+                (DeviceInformation)Pairable_Devices.SelectedItem;
+
+            Console.WriteLine(
+                "the selected item is: " + selectedDevice.Name
+            );
+
             Pairable_Devices.IsEnabled = false;
+
+            StatusText.Text = "Connecting...";
+            StatusText.Foreground = Brushes.Yellow;
 
             try
             {
-                bool isConnected = await bleClient.ConnectDevice((DeviceInformation)Pairable_Devices.SelectedItem);
+                bool isConnected =
+                    await bleClient.ConnectDevice(selectedDevice);
 
-                if(isConnected){
+                if (isConnected)
+                {
                     StatusText.Text = "Connected";
+                    StatusText.Foreground = Brushes.LightGreen;
+
                     Console.WriteLine("we connected baby");
-                } else {
-                    StatusText.Text = "Failed";
-                    Console.WriteLine("we couldnt connect");
-
                 }
+                else
+                {
+                    StatusText.Text = "Failed";
+                    StatusText.Foreground = Brushes.Red;
 
-                
+                    Console.WriteLine("we couldnt connect");
+                }
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                
-                throw;
-            } 
-            finally {
-                // enable everything
-                // say couldnt connect/
-                Pairable_Devices.IsEnabled = true;
-                //StatusText.Text = "connection failed";
+                Console.WriteLine(
+                    "Connection error: " + ex.Message
+                );
+
+                StatusText.Text = "Connection error";
+                StatusText.Foreground = Brushes.Red;
             }
-
-
+            finally
+            {
+                Pairable_Devices.IsEnabled = true;
+            }
         }
 
-        
+        // ---------------------------------------------------------
+        // WINDOW CLOSED
+        // ---------------------------------------------------------
 
-        private async void MainWindow_Closed(object sender, object args)
+        private async void MainWindow_Closed(
+            object sender,
+            object args)
         {
-        
-            // TODO: Save application state and stop any background BLE operations here
-            bleClient.DisconnectDevice();
-        } 
+            // TODO:
+            // Save application state and stop any background
+            // BLE operations here.
+
+        }
     }
 }
-
-
 /*
 
         
