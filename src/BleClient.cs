@@ -27,7 +27,7 @@ namespace ble
 
         private Guid whoop_custom_service_uuid = new Guid("fd4b0001-cce1-4033-93ce-002d5875f58a");
 
-        public event Action<DeviceInformation> Connected;
+        public event Action<BluetoothLEDevice> Connected;
         public event Action UnableToConnect;
         public event Action Disconnect;
 
@@ -66,64 +66,61 @@ namespace ble
 
         }
 
+
         public async Task ScanForDevice(){
             startDeviceWatcher();
         }
 
-        
- 
-
-
-
-
+    
         public async Task<bool> ConnectDevice(DeviceInformation device){
-
-
-            
-
             Console.WriteLine("going to try and connect with device: " + device.Id);
             Console.WriteLine("with name: " + device.Name);
 
-            // checks to see if paired or not
-            if(!device.Pairing.IsPaired){
 
-                Console.WriteLine("DEVICE ISNT PAIRED YET SO WILL TRY PAIRING");
+
+            if (!device.Pairing.IsPaired)
+            {
+                Console.WriteLine("new device hasnt been paired before: TRYING TO PAIR WITH DEVICE");
+                
                 DevicePairingResult result = await device.Pairing.PairAsync(DevicePairingProtectionLevel.EncryptionAndAuthentication);
-
                 // is pairing successful?
                 if (result.Status == DevicePairingResultStatus.Paired){
                     Console.WriteLine("DEVICE IS NOW PAIRED");
-                    Connected?.Invoke(device);
+
+                    string savedDeviceId = device.Id;
+                    
+                    BluetoothLEDevice encrypted_device = await BluetoothLEDevice.FromIdAsync(savedDeviceId);
+
+
+                    Connected?.Invoke(encrypted_device);
                     return true;
 
                 } else {
-                    Console.WriteLine("COULDNT PAIR TO DEVICE");
+                    Console.WriteLine("COULDNT PAIR TO DEVICE because ");
                     UnableToConnect?.Invoke();
                     return false;
                 }
 
             } else {
-                Console.WriteLine("DEVICE IS ALREADY PAIRED");
+                Console.WriteLine("device is saved so has been paired before");
+                BluetoothLEDevice pairedDevice = await BluetoothLEDevice.FromIdAsync(device.Id);
+
+                if (pairedDevice == null){
+                    Console.WriteLine("Failed to load paired device instance.");
+                    UnableToConnect?.Invoke();
+                    return false;
+                }
+
                 
-                Console.WriteLine("DEVICE IS asdasdasdas PAIRED");
-                Connected?.Invoke(device);
+                Connected?.Invoke(pairedDevice);
                 return true;
+
             }
 
 
-            // if (result.Status == GattCommunicationStatus.Success)
-            // {
 
-            //     // gets services
+            return false;
 
-            //     Console.WriteLine("Choose a service");
-            //     String input = Console.ReadLine();
-            //     int val = int.Parse(input);
-
-            //     var chosen_service = services[val];
-
-
-            // return true;
         }
 
 

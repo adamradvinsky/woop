@@ -40,22 +40,30 @@ namespace strap
         }
 
 
-        public async void ActivateStrap(DeviceInformation deviceinfo){
+        public async void ActivateStrap(BluetoothLEDevice deviceinfo){
            
-            woop.woop_information = deviceinfo;
+            woop.device = deviceinfo;
+            woop.woop_information = deviceinfo.DeviceInformation;
+
             Console.WriteLine("IsPaired at activate time: " + woop.woop_information.Pairing.IsPaired);    
 
-            Console.WriteLine("strap activated");
-            woop.device = await BluetoothLEDevice.FromIdAsync(woop.woop_information.Id);
             await SetStrapServices();
 
             // subscribe to everything and shi
-            Console.WriteLine("custome service " + woop.custom_service.Uuid);
-            await SubscribeToChars(woop.custom_service);
+            Console.WriteLine("custom service " + woop.custom_service.Uuid);
+
+            bool subbedToChars = await SubscribeToChars(woop.custom_service);
+
+            if(subbedToChars){
+                Console.WriteLine("strap activated");
+
+            } else {
+                Console.WriteLine("unable to activate strap");
+            }
+
         }
 
-        private async Task SubscribeToChars(GattDeviceService service){
-
+        private async Task<bool> SubscribeToChars(GattDeviceService service){
 
             Console.WriteLine("IsPaired at subscribe time: " + woop.woop_information.Pairing.IsPaired);    
             var characteristics = await service.GetCharacteristicsAsync();
@@ -66,17 +74,19 @@ namespace strap
 
 
                 characteristic.ValueChanged += Characteristic_ValueChanged;
-                Console.WriteLine("the char has a flag of: " + characteristic.CharacteristicProperties + " uuid: " + characteristic.Uuid + " and i have subscribed");
+                Console.WriteLine("the char has a flag of: " + characteristic.CharacteristicProperties + " uuid: " + characteristic.Uuid);
                 var result = await characteristic.WriteClientCharacteristicConfigurationDescriptorWithResultAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
                 if (result.Status != GattCommunicationStatus.Success)
                 {
                     Console.WriteLine("light switch status: " + result.ProtocolError);
                     Console.WriteLine("unable to subscribed to notifications ");
-                    return;
+                    return false;
                 }
+                Console.WriteLine("subbed ");
             }
 
             Console.WriteLine("subscribed to notifications ");
+            return true;
         }
 
         public async Task Send_Hello(){
@@ -94,7 +104,7 @@ namespace strap
             try
             {
                 Console.WriteLine("asdsada");
-                GattCommunicationStatus result = await woop.CMD_TO_STRAP.WriteValueAsync(data, GattWriteOption.WriteWithoutResponse);
+                GattCommunicationStatus result = await woop.CMD_TO_STRAP.WriteValueAsync(data, GattWriteOption.WriteWithResponse);
                 Console.WriteLine("sent data and the result is: " + result);
             }
             catch (System.Exception)
@@ -109,7 +119,7 @@ namespace strap
         
 
         public async void Send_Buzz_Command_To_Strap(){
-            Send_Command_To_Strap(WhoopCommands.Get_Clock);
+            Send_Command_To_Strap(WhoopCommands.Buzz);
         }
 
 
@@ -125,7 +135,7 @@ namespace strap
 
             
             Console.WriteLine(woop.CMD_TO_STRAP.Uuid);
-            GattCommunicationStatus result = await woop.CMD_TO_STRAP.WriteValueAsync(buffer, GattWriteOption.WriteWithoutResponse);
+            GattCommunicationStatus result = await woop.CMD_TO_STRAP.WriteValueAsync(buffer, GattWriteOption.WriteWithResponse);
             
             if(result == GattCommunicationStatus.Success){
                 Console.WriteLine("it sent over");
@@ -150,9 +160,10 @@ namespace strap
 
         
         public async Task SetStrapServices(){
-            
+            Console.WriteLine("IsPaired at setstrap time: " + woop.woop_information.Pairing.IsPaired);    
+          
             // get services
-            GattDeviceServicesResult result = await woop.device.GetGattServicesAsync();
+            GattDeviceServicesResult result = await woop.device.GetGattServicesAsync(BluetoothCacheMode.Uncached);
         
             // if got services 
             if(result.Status == GattCommunicationStatus.Success){
@@ -172,16 +183,19 @@ namespace strap
                     }
                 }
             }
-            SetStrapCharacteristics();
+            await SetStrapCharacteristics();
         }
 
         
-        public void SetStrapCharacteristics(){
+        public async Task SetStrapCharacteristics(){
             GattDeviceService service = woop.custom_service;
 
-            foreach (var characteristic in service.GetAllCharacteristics())
+            // SubscribeToChars
+            var characteristics = await service.GetCharacteristicsAsync(BluetoothCacheMode.Uncached);
+            
+            foreach (var characteristic in characteristics.Characteristics)
             {
-                if (characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify)){
+                if (characteristic.Uuid.ToString() == "fd4b0002-cce1-4033-93ce-002d5875f58a"){
                     woop.CMD_TO_STRAP = characteristic;
                     Console.WriteLine("set the command to strap command");
                 }
