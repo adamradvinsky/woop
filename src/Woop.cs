@@ -54,7 +54,7 @@ namespace strap{
 
         custom service !!
         uuid: fd4b0001-cce1-4033-93ce-002d5875f58a
-            
+              fd4b0001-cce1-4033-93ce-002d5875f58a
             CMD_TO_STRAP = characteristic uuid: fd4b0002-cce1-4033-93ce-002d5875f58a
              = characteristic uuid: fd4b0003-cce1-4033-93ce-002d5875f58a
              = characteristic uuid: fd4b0004-cce1-4033-93ce-002d5875f58a

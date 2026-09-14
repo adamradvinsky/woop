@@ -87,6 +87,7 @@ namespace ble
             // checks to see if paired or not
             if(!device.Pairing.IsPaired){
 
+                Console.WriteLine("DEVICE ISNT PAIRED YET SO WILL TRY PAIRING");
                 DevicePairingResult result = await device.Pairing.PairAsync(DevicePairingProtectionLevel.EncryptionAndAuthentication);
 
                 // is pairing successful?

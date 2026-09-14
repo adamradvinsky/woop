@@ -17,7 +17,7 @@ namespace strap
         private BleClient bleClient;
         public Woop woop = new Woop();
 
-        int counter = 50;
+        int counter = 74;
 
 
         public StrapClient(BleClient bleClient){
@@ -41,19 +41,23 @@ namespace strap
 
 
         public async void ActivateStrap(DeviceInformation deviceinfo){
-            
+           
             woop.woop_information = deviceinfo;
+            Console.WriteLine("IsPaired at activate time: " + woop.woop_information.Pairing.IsPaired);    
 
             Console.WriteLine("strap activated");
             woop.device = await BluetoothLEDevice.FromIdAsync(woop.woop_information.Id);
-            SetStrapServices();
+            await SetStrapServices();
 
             // subscribe to everything and shi
+            Console.WriteLine("custome service " + woop.custom_service.Uuid);
             await SubscribeToChars(woop.custom_service);
         }
 
         private async Task SubscribeToChars(GattDeviceService service){
 
+
+            Console.WriteLine("IsPaired at subscribe time: " + woop.woop_information.Pairing.IsPaired);    
             var characteristics = await service.GetCharacteristicsAsync();
             foreach(var characteristic in characteristics.Characteristics){
                 
@@ -64,6 +68,12 @@ namespace strap
                 characteristic.ValueChanged += Characteristic_ValueChanged;
                 Console.WriteLine("the char has a flag of: " + characteristic.CharacteristicProperties + " uuid: " + characteristic.Uuid + " and i have subscribed");
                 var result = await characteristic.WriteClientCharacteristicConfigurationDescriptorWithResultAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                if (result.Status != GattCommunicationStatus.Success)
+                {
+                    Console.WriteLine("light switch status: " + result.ProtocolError);
+                    Console.WriteLine("unable to subscribed to notifications ");
+                    return;
+                }
             }
 
             Console.WriteLine("subscribed to notifications ");
@@ -81,11 +91,19 @@ namespace strap
             // 2. Convert the byte array into an IBuffer
             IBuffer data = rawBytes.AsBuffer();
 
-            Console.WriteLine("asdsada");
-            GattCommunicationStatus result = await woop.CMD_TO_STRAP.WriteValueAsync(data, GattWriteOption.WriteWithResponse);
+            try
+            {
+                Console.WriteLine("asdsada");
+                GattCommunicationStatus result = await woop.CMD_TO_STRAP.WriteValueAsync(data, GattWriteOption.WriteWithoutResponse);
+                Console.WriteLine("sent data and the result is: " + result);
+            }
+            catch (System.Exception)
+            {
+                
+                throw;
+            }
+
             
-            Console.WriteLine("sent data and the result is: " + result);
-            return;
         }
         
         
@@ -107,7 +125,7 @@ namespace strap
 
             
             Console.WriteLine(woop.CMD_TO_STRAP.Uuid);
-            GattCommunicationStatus result = await woop.CMD_TO_STRAP.WriteValueAsync(buffer, GattWriteOption.WriteWithResponse);
+            GattCommunicationStatus result = await woop.CMD_TO_STRAP.WriteValueAsync(buffer, GattWriteOption.WriteWithoutResponse);
             
             if(result == GattCommunicationStatus.Success){
                 Console.WriteLine("it sent over");
@@ -131,7 +149,7 @@ namespace strap
 
 
         
-        public async void SetStrapServices(){
+        public async Task SetStrapServices(){
             
             // get services
             GattDeviceServicesResult result = await woop.device.GetGattServicesAsync();
