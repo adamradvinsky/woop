@@ -21,10 +21,6 @@ namespace ble
         }
 
 
-        
-
-
-
         private Guid whoop_custom_service_uuid = new Guid("fd4b0001-cce1-4033-93ce-002d5875f58a");
 
         public event Action<BluetoothLEDevice> Connected;
@@ -76,8 +72,6 @@ namespace ble
             Console.WriteLine("going to try and connect with device: " + device.Id);
             Console.WriteLine("with name: " + device.Name);
 
-
-
             if (!device.Pairing.IsPaired)
             {
                 Console.WriteLine("new device hasnt been paired before: TRYING TO PAIR WITH DEVICE");
@@ -117,17 +111,9 @@ namespace ble
 
             }
 
-
-
             return false;
-
         }
-
-
-
     
-
-        
 
 
 

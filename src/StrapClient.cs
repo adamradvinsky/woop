@@ -9,6 +9,7 @@ using System.Diagnostics;
 using woop_app;
 using ble;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.IO.Hashing;
 
 namespace strap
 {
@@ -17,7 +18,7 @@ namespace strap
         private BleClient bleClient;
         public Woop woop = new Woop();
 
-        int counter = 74;
+        
 
 
         public StrapClient(BleClient bleClient){
@@ -35,7 +36,7 @@ namespace strap
             broski,
             cowabunga,
             skibidi,
-            Buzz = 68,
+            Buzz = 42,
             Get_Clock = 11
         }
 
@@ -66,7 +67,8 @@ namespace strap
         private async Task<bool> SubscribeToChars(GattDeviceService service){
 
             Console.WriteLine("IsPaired at subscribe time: " + woop.woop_information.Pairing.IsPaired);    
-            var characteristics = await service.GetCharacteristicsAsync();
+            var characteristics = await service.GetCharacteristicsAsync(BluetoothCacheMode.Uncached);
+
             foreach(var characteristic in characteristics.Characteristics){
                 
                 if (!characteristic.CharacteristicProperties.HasFlag(GattCharacteristicProperties.Notify))
@@ -112,26 +114,71 @@ namespace strap
                 
                 throw;
             }
-
-            
         }
         
         
 
         public async void Send_Buzz_Command_To_Strap(){
-            Send_Command_To_Strap(WhoopCommands.Buzz);
+            
+            Send_Command_To_Strap(0x23, 0x00, WhoopCommands.Buzz, 0x04);
         }
 
 
 
-        private async void Send_Command_To_Strap(WhoopCommands command, byte[] payload = null){
+        private async void Send_Command_To_Strap(byte type, byte seq, WhoopCommands command, byte b3, byte[] payload = null){
             
             Console.WriteLine("sending a command");
  
-            byte[] data = new byte[] {Woop.COMMAND_BYTE, (byte)command, (byte)counter};
 
-            IBuffer buffer = data.AsBuffer();
-            Console.WriteLine(string.Join(", ", data));
+            // INNER
+            
+            List<byte> inner = new List<byte>();
+            
+            //type
+            inner.Add(0x23);
+            // u8 seq
+            inner.Add(seq);
+            // cmd u8 
+            inner.Add((byte)command);
+            // b3 
+            inner.Add(b3);
+            
+            // payload 
+            if(payload != null)
+                inner.AddRange(payload);
+
+
+            int inner_length = inner.Count;
+            int len = inner_length + 4;
+            int total_length = len + 8;
+            
+            
+            List<byte> envelope = new List<byte>();
+
+
+            // xAA 
+            envelope.Add(0xAA);
+            // x01
+            envelope.Add(0x01);
+            // u16 (2 bytes) length (from bytes 4 - end - 4)
+            envelope.AddRange(BitConverter.GetBytes((ushort)len));
+            // u16 field 
+            envelope.AddRange(BitConverter.GetBytes((ushort)0x0100));
+            // crc 16 modbus
+            envelope.AddRange(BitConverter.GetBytes(crc16((envelope.ToArray()))));
+
+
+            envelope.AddRange(inner);            
+
+            // crc32 zlib
+            envelope.AddRange(crc32(inner.ToArray()));
+        
+
+
+            // byte[] data = new byte[] {Woop.COMMAND_BYTE, (byte)command, (byte)woop.counter};
+
+            IBuffer buffer = envelope.ToArray().AsBuffer();
+            Console.WriteLine(BitConverter.ToString(envelope.ToArray()));
 
             
             Console.WriteLine(woop.CMD_TO_STRAP.Uuid);
@@ -139,9 +186,25 @@ namespace strap
             
             if(result == GattCommunicationStatus.Success){
                 Console.WriteLine("it sent over");
-                counter++;
+                woop.counter++;
             }
+        }
 
+
+        public ushort crc16(byte[] data){
+            
+            ushort crc = 0xFFFF;
+            for (int i = 0; i < data.Length; i++)
+            {
+                crc ^= data[i];
+                for (int bit = 0; bit < 8; bit++)
+                    crc = (crc & 1) != 0 ? (ushort)((crc >> 1) ^ 0xA001) : (ushort)(crc >> 1);
+            }
+            return crc;
+        }
+
+        public byte[] crc32(byte[] array){
+            return Crc32.Hash(array);
         }
 
 
@@ -152,7 +215,7 @@ namespace strap
             byte[] data = new byte[reader.UnconsumedBufferLength];
             reader.ReadBytes(data);
 
-            Console.WriteLine("sender uuid: " + sender.Uuid + BitConverter.ToString(data));
+            Console.WriteLine("sender uuid: " + sender.Uuid + "\n" +  BitConverter.ToString(data));
         }
 
 
