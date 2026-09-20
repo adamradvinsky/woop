@@ -6,12 +6,12 @@ using System.Text;
 using Windows.Storage.Streams;
 using System;
 using System.Diagnostics;
-using woop_app;
-using ble;
+//using woop_app;
+//using ble;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.IO.Hashing;
 
-namespace strap
+namespace woop_app
 {
     public class StrapClient{
 
@@ -31,14 +31,16 @@ namespace strap
            bleClient.Connected += ActivateStrap;
         }
 
-        public enum WhoopCommands
-        {
-            broski,
-            cowabunga,
-            skibidi,
-            Buzz = 42,
-            Get_Clock = 11
-        }
+        // public enum WhoopCommands
+        // {
+        //     broski,
+        //     cowabunga,
+        //     skibidi,
+        //     Buzz = 67,
+        //     Get_Clock = 11,
+        //     Get_Battery = 26,
+        //     GET_BODY_LOCATION_AND_STATUS = 84
+        // }
 
 
         public async void ActivateStrap(BluetoothLEDevice deviceinfo){
@@ -120,15 +122,18 @@ namespace strap
 
         public async void Send_Buzz_Command_To_Strap(){
             
-            Send_Command_To_Strap(0x23, 0x00, WhoopCommands.Buzz, 0x04);
+            Send_Command(WhoopCommands.Buzz);
         }
 
 
 
-        private async void Send_Command_To_Strap(byte type, byte seq, WhoopCommands command, byte b3, byte[] payload = null){
+        public async Task<bool> Send_Command(WhoopCommands command, byte[] payload = null){
             
             Console.WriteLine("sending a command");
- 
+            byte type = 0x23;
+            byte seq = (byte)woop.counter;
+            byte b3 = 0x01;
+
 
             // INNER
             
@@ -154,7 +159,7 @@ namespace strap
             
             
             List<byte> envelope = new List<byte>();
-
+ 
 
             // xAA 
             envelope.Add(0xAA);
@@ -187,7 +192,9 @@ namespace strap
             if(result == GattCommunicationStatus.Success){
                 Console.WriteLine("it sent over");
                 woop.counter++;
+                return true;
             }
+            return false;
         }
 
 

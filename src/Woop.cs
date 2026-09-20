@@ -6,10 +6,10 @@ using System.Text;
 using Windows.Storage.Streams;
 using System;
 using System.Diagnostics;
-using woop_app;
-using strap;
+// using woop_app;
+// using strap;
 
-namespace strap{
+namespace woop_app{
 
 
 
@@ -39,6 +39,17 @@ namespace strap{
     
         public const byte COMMAND_BYTE = 35;
 
+        // battery
+        // AA-01-10-00-01-00-20-81-24-17-1A-00-01-15-00-00-00-00-00-00-76-55-EF-2E
+
+        // clock
+        // AA-01-14-00-01-00-21-B1-24-1B-0B-00-01-4C-73-AF-6A-CC-0C-00-00-00-00-00-E5-43-DB-A6
+
+        // 67
+        // AA-01-20-00-01-00-2F-81-24-1E-43-00-00-04-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-6D-2B-66-A6
+
+        // GET_ADVERTISING_NAME = 76
+        // AA-01-0C-00-01-00-27-11-24-34-4C-00-03-00-00-00-7D-57-1D-2E
     /*
         services
          uuid: 00001800-0000-1000-8000-00805f9b34fb

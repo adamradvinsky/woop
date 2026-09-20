@@ -6,10 +6,10 @@ using System.Text;
 using Windows.Storage.Streams;
 using System;
 using System.Diagnostics;
-using woop_app;
-using strap;
+// using woop_app;
+// using strap;
 
-namespace ble
+namespace woop_app
 {
     public class BleClient {
         
@@ -19,6 +19,8 @@ namespace ble
             Connected,
             Disconnected
         }
+
+    
 
 
         private Guid whoop_custom_service_uuid = new Guid("fd4b0001-cce1-4033-93ce-002d5875f58a");
@@ -38,7 +40,6 @@ namespace ble
         public BleClient(){
 
             Console.WriteLine("BLE CLIENT CREATED");
-
         }
 
 

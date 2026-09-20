@@ -10,8 +10,8 @@ using Windows.Storage.Streams;
 
 using Microsoft.UI.Xaml;
 
-using ble;
-using strap;
+// using ble;
+// using strap;
 
 namespace woop_app
 {
@@ -56,6 +56,7 @@ namespace woop_app
             woop = strapClient.woop;
 
             UpdateWoopInfo();
+            PopulateCommandButtons();
         }
 
 
@@ -124,27 +125,83 @@ namespace woop_app
 
 
         // =========================================================
-        // SEND COMMAND BUTTON
+        // WHOOP COMMANDS (auto-generated from WhoopCommands enum)
         // =========================================================
 
-        private void SendCommandButton_Click(
+        /*
+         * Builds one button per value in the WhoopCommands enum
+         * (defined in strap / StrapClient.cs) and drops them into
+         * the CommandsPanel WrapPanel in the XAML.
+         *
+         * To add a new command: add a value to the WhoopCommands
+         * enum in StrapClient.cs and rebuild. A matching button
+         * shows up here automatically - no other changes needed.
+         */
+        private void PopulateCommandButtons()
+        {
+            if (CommandsPanel == null)
+                return;
+
+            CommandsPanel.Children.Clear();
+
+            foreach (WhoopCommands cmd in Enum.GetValues(typeof(WhoopCommands)))
+            {
+                Button btn = new Button
+                {
+                    Content = cmd.ToString(),
+                    Tag = cmd,
+                    Margin = new Thickness(4),
+                    Padding = new Thickness(10, 5, 10, 5),
+                    Background = new SolidColorBrush(Color.FromRgb(0x22, 0x22, 0x22)),
+                    Foreground = Brushes.White
+                };
+
+                btn.Click += CommandButton_Click;
+
+                CommandsPanel.Children.Add(btn);
+            }
+        }
+
+
+        /*
+         * Every auto-generated command button routes here. The
+         * WhoopCommands value it represents is stashed in Tag,
+         * so this one handler works for every command, present
+         * and future.
+         */
+        private async void CommandButton_Click(
             object sender,
             RoutedEventArgs e)
         {
+            Button btn = (Button)sender;
+            WhoopCommands cmd = (WhoopCommands)btn.Tag;
+
             Console.WriteLine(
-                "Send Command button clicked"
+                "Sending command: " + cmd + " (" + (int)cmd + ")"
             );
 
-            StatusText.Text = "Sending command...";
+            StatusText.Text = "Sending " + cmd + "...";
             StatusText.Foreground = Brushes.Yellow;
 
-            // Send command to strap
-            strapClient.Send_Buzz_Command_To_Strap();
+            try
+            {
+                // Requires a Send_Command(WhoopCommands) method on
+                // StrapClient - see the snippet provided alongside
+                // this file.
+                bool success = await strapClient.Send_Command(cmd);
 
-            Console.WriteLine("COMMAND");
+                StatusText.Text = success ? cmd + " sent" : cmd + " failed";
+                StatusText.Foreground = success ? Brushes.LightGreen : Brushes.Red;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(
+                    "Error sending command " + cmd + ": " + ex.Message
+                );
 
-            StatusText.Text = "Command sent";
-            StatusText.Foreground = Brushes.LightGreen;
+                StatusText.Text = "Command error";
+                StatusText.Foreground = Brushes.Red;
+            }
 
             UpdateWoopInfo();
         }

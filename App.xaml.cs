@@ -1,6 +1,6 @@
 using System.Windows;
-using ble;
-using strap;
+//using ble;
+//sing strap;
 
 namespace woop_app
 {
