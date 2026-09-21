@@ -18,6 +18,8 @@ namespace woop_app
         private BleClient bleClient;
         public Woop woop = new Woop();
 
+
+
         
 
 
@@ -110,29 +112,78 @@ namespace woop_app
                 Console.WriteLine("asdsada");
                 GattCommunicationStatus result = await woop.CMD_TO_STRAP.WriteValueAsync(data, GattWriteOption.WriteWithResponse);
                 Console.WriteLine("sent data and the result is: " + result);
+                await Set_Config();
             }
             catch (System.Exception)
             {
                 
                 throw;
             }
+
+
+        }
+
+        public async Task Set_Config(){
+           
+            await Task.Delay(5000);
+            Console.WriteLine("SETTING UP THE CONFIGS");
+
+
+            foreach(var config in WhoopData.Configs){
+                
+                Console.WriteLine("setting config: " + config.Key + " with value: " + config.Value);
+                List<byte> payload = new List<byte>();
+
+
+                Console.WriteLine("jello?");
+                // add name as bytes
+                byte[] stringbytes = Encoding.ASCII.GetBytes(config.Key);
+                payload.AddRange(stringbytes);
+
+                Console.WriteLine("bello?");
+                while(payload.Count < 32)
+                    payload.Add(0);
+
+                // set 32nd byte to a 1
+                payload.Add((byte)config.Value);
+                
+                Console.WriteLine("pello?");
+
+                // last 7 bytes are padding 
+                while(payload.Count < 40)
+                    payload.Add(0);
+
+                try
+                {
+                    bool result = await Send_Command(WhoopCommands.Set_Config, 0x01, payload.ToArray());
+                    Console.WriteLine("the result " + result);
+                }
+                catch (System.Exception)
+                {
+                    
+                    throw;
+                }
+            }
+
+            Console.WriteLine("have set the configs");
+
         }
         
         
 
         public async void Send_Buzz_Command_To_Strap(){
             
-            Send_Command(WhoopCommands.Buzz);
+            //Send_Command(WhoopCommands.Buzz);
         }
 
 
 
-        public async Task<bool> Send_Command(WhoopCommands command, byte[] payload = null){
+        public async Task<bool> Send_Command(WhoopCommands command, byte b3, byte[] payload = null){
             
             Console.WriteLine("sending a command");
             byte type = 0x23;
             byte seq = (byte)woop.counter;
-            byte b3 = 0x01;
+            //byte b3 = 0x01;
 
 
             // INNER
