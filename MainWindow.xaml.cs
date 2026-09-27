@@ -146,6 +146,7 @@ namespace woop_app
 
             foreach (WhoopCommands cmd in Enum.GetValues(typeof(WhoopCommands)))
             {
+                // green fn
                 Button btn = new Button
                 {
                     Content = cmd.ToString(),
