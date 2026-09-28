@@ -82,6 +82,8 @@ namespace woop_app
                 characteristic.ValueChanged += Characteristic_ValueChanged;
                 Console.WriteLine("the char has a flag of: " + characteristic.CharacteristicProperties + " uuid: " + characteristic.Uuid);
                 var result = await characteristic.WriteClientCharacteristicConfigurationDescriptorWithResultAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                Console.WriteLine($"Subscribe to {characteristic.Uuid}: status={result.Status}, error={result.ProtocolError}");
+                
                 if (result.Status != GattCommunicationStatus.Success)
                 {
                     Console.WriteLine("light switch status: " + result.ProtocolError);
@@ -112,7 +114,7 @@ namespace woop_app
                 Console.WriteLine("asdsada");
                 GattCommunicationStatus result = await woop.CMD_TO_STRAP.WriteValueAsync(data, GattWriteOption.WriteWithResponse);
                 Console.WriteLine("sent data and the result is: " + result);
-                await Set_Config();
+                //await Set_Config();
             }
             catch (System.Exception)
             {
@@ -135,20 +137,16 @@ namespace woop_app
                 List<byte> payload = new List<byte>();
 
 
-                Console.WriteLine("jello?");
                 // add name as bytes
                 byte[] stringbytes = Encoding.ASCII.GetBytes(config.Key);
                 payload.AddRange(stringbytes);
 
-                Console.WriteLine("bello?");
                 while(payload.Count < 32)
                     payload.Add(0);
 
                 // set 32nd byte to a 1
                 payload.Add((byte)config.Value);
                 
-                Console.WriteLine("pello?");
-
                 // last 7 bytes are padding 
                 while(payload.Count < 40)
                     payload.Add(0);
@@ -196,7 +194,7 @@ namespace woop_app
 
 
         public async Task<bool> Send_Command(WhoopCommands command, byte b3, byte[] payload = null){
-            
+            Console.WriteLine("Connection status: " + woop.device.ConnectionStatus);
             Console.WriteLine("sending a command");
             byte type = 0x23;
             byte seq = (byte)woop.counter;

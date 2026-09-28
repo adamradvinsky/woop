@@ -194,7 +194,7 @@ namespace woop_app
                 // Requires a Send_Command(WhoopCommands) method on
                 // StrapClient - see the snippet provided alongside
                 // this file.
-                bool success = await strapClient.Send_Command(cmd, 0x01);
+                bool success = await strapClient.Send_Command(cmd, 0x00);
 
                 StatusText.Text = success ? cmd + " sent" : cmd + " failed";
                 StatusText.Foreground = success ? Brushes.LightGreen : Brushes.Red;
