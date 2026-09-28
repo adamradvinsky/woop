@@ -8,7 +8,9 @@ namespace woop_app
         Get_Battery = 26,
         GET_BODY_LOCATION_AND_STATUS = 84,
         GET_ADVERTISING_NAME = 76,
-        Set_Config = 0x78
+        Set_Config = 0x78,
+        Get_Data_Range = 0x22,
+        Get_Historical = 0x16
     }
 
     public static class WhoopData{

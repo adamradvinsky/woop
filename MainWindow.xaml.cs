@@ -163,6 +163,11 @@ namespace woop_app
             }
         }
 
+        private async void Get_Data_Range(object sender, RoutedEventArgs e){
+            await strapClient.Get_Range();
+
+        }
+
 
         /*
          * Every auto-generated command button routes here. The
