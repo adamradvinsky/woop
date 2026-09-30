@@ -169,6 +169,7 @@ namespace woop_app
         
         
         // heh
+        // asdsd
         public async void Send_Buzz_Command_To_Strap(){
             
             //Send_Command(WhoopCommands.Buzz);
