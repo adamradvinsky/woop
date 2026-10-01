@@ -121,9 +121,8 @@ namespace woop_app
                 
                 throw;
             }
-
-
         }
+        // bro holy cow im so busy
 
         public async Task Set_Config(){
            
