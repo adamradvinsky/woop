@@ -38,7 +38,6 @@ namespace woop_app
         static int devices = 0;
 
         public BleClient(){
-
             Console.WriteLine("BLE CLIENT CREATED");
         }
 
