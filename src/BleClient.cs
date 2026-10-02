@@ -41,7 +41,7 @@ namespace woop_app
             Console.WriteLine("BLE CLIENT CREATED");
         }
 
-
+        // cartman
 
         public void startDeviceWatcher(){
             string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
