@@ -16,6 +16,8 @@ I also had zero BLE experience going in, and I figured trying to talk to the str
 - Stores everything in a local SQLite database so your history stays on your machine
 - Shows it all in a desktop app so you can actually look at your own data
 
+![Woop dashboard mockup](assets/dashboard-mockup.png)
+
 ## How I built it
 
 Woop is a Windows desktop app written in C#.
