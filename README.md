@@ -46,6 +46,15 @@ It's free! I connected to a device that already exists and works, and I didn't n
 - Debugging a device that fails silently, which means being really careful about what you send and in what order
 - How to turn raw sensor data into scores that mean something
 
+## Helpful resources
+
+I wasn't the first person to poke at the WHOOP's Bluetooth protocol, and these projects and write-ups helped me understand how the strap works and how it communicates. Big thanks to the people behind them:
+
+- [judes.club: WHOOP 5 experiments](https://judes.club/experiments/whoop5/)
+- [reverse-engineering-whoop-post](https://github.com/bWanShiTong/reverse-engineering-whoop-post) by bWanShiTong
+- [noop](https://github.com/ryanbr/noop) by ryanbr
+
+
 ## What's next for woop
 
 Right now everything gets calculated on the desktop. Next I want to connect Woop to my personal server so the data is sent there, calculated there, and parsed there. That way my data lives in one place I control and I can build more on top of it.
