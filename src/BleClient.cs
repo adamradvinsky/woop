@@ -43,6 +43,7 @@ namespace woop_app
 
         // cartman
         // chicken pot pie
+        // no KITTY
 
         public void startDeviceWatcher(){
             string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
