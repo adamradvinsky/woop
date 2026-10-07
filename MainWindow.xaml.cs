@@ -189,6 +189,8 @@ namespace woop_app
             StatusText.Text = "Sending " + cmd + "...";
             StatusText.Foreground = Brushes.Yellow;
 
+
+            // veygi
             try
             {
                 // Requires a Send_Command(WhoopCommands) method on
