@@ -191,6 +191,7 @@ namespace woop_app
 
 
             // veygi
+            // mandic is the goat
             try
             {
                 // Requires a Send_Command(WhoopCommands) method on
