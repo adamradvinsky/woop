@@ -1,6 +1,7 @@
 namespace woop_app
 {
 
+    // commands
     public enum WhoopCommands
     {
         Buzz = 67,
@@ -14,6 +15,7 @@ namespace woop_app
         
     }
 
+    // data/ commands but still need b value
     public static class WhoopData{
 
         public static readonly Dictionary<string, byte> Configs = new Dictionary<string, byte>
