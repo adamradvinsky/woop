@@ -174,11 +174,13 @@ namespace woop_app
             //Send_Command(WhoopCommands.Buzz);
         }
 
+
         public async Task Get_Range(){
             Console.WriteLine("asking for data range");
             await Send_Command(WhoopCommands.Get_Data_Range, 0x00);
     
             await Get_Data();
+
         }
 
         public async Task Get_Data(){
@@ -187,6 +189,15 @@ namespace woop_app
             Console.WriteLine("sending historical");
             await Send_Command(WhoopCommands.Get_Historical, 0x00);
 
+
+            // loop of getting and echoing the data to recieve full stream
+            while(true){
+                // listen to data
+
+                // repeat last 7 bytes in payload
+                await Send_command();
+
+            }
             
             // send byte 13 8-byte progress cursor buried at offset 13 as 0x17 command b3 0x01 
 
