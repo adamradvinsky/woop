@@ -182,6 +182,7 @@ namespace woop_app
             await Get_Data();
 
         }
+        // bruh
 
         public async Task Get_Data(){
             // ask for data
