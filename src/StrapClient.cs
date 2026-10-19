@@ -184,7 +184,7 @@ namespace woop_app
         }
         // bruh
         // askpdoakspdk
-
+        // asdasd
         public async Task Get_Data(){
             // ask for data
             
