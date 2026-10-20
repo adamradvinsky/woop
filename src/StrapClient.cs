@@ -285,6 +285,7 @@ namespace woop_app
 
             byte type = frame[8];
 
+            //juoihiuhuiy
             if (type == 0x2F)
             {
                 Console.WriteLine("r22 packet: " + BitConverter.ToString(data));
