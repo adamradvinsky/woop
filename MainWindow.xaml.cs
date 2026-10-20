@@ -164,7 +164,7 @@ namespace woop_app
         }
 
         private async void Get_Data_Range(object sender, RoutedEventArgs e){
-            await strapClient.Get_Range();
+            await strapClient.Get_Data();
 
         }
 

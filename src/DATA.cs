@@ -11,7 +11,8 @@ namespace woop_app
         GET_ADVERTISING_NAME = 76,
         Set_Config = 0x78,
         Get_Data_Range = 0x22,
-        Get_Historical = 0x16
+        Get_Historical = 0x16,
+        Echo = 0x17
         
     }
 

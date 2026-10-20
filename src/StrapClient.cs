@@ -152,7 +152,7 @@ namespace woop_app
 
                 try
                 {
-                    bool result = await Send_Command(WhoopCommands.Set_Config, 0x01, payload.ToArray());
+                    bool result = await Send_Command(WhoopCommands.Set_Config, 0x01, 0x23, payload.ToArray());
                     Console.WriteLine("the result " + result);
                 }
                 catch (System.Exception)
@@ -165,51 +165,28 @@ namespace woop_app
             Console.WriteLine("have set the configs");
 
         }
-        
-        
-        // heh
-        // asdsd
-        public async void Send_Buzz_Command_To_Strap(){
-            
-            //Send_Command(WhoopCommands.Buzz);
-        }
+       
 
+      
 
-        public async Task Get_Range(){
-            Console.WriteLine("asking for data range");
-            await Send_Command(WhoopCommands.Get_Data_Range, 0x00);
-    
-            await Get_Data();
-
-        }
-        // bruh
-        // askpdoakspdk
-        // asdasd
         public async Task Get_Data(){
             // ask for data
             
             Console.WriteLine("sending historical");
             await Send_Command(WhoopCommands.Get_Historical, 0x00);
+        }
 
-
-            // loop of getting and echoing the data to recieve full stream
-            while(true){
-                // listen to data
-
-                // repeat last 7 bytes in payload
-                await Send_command();
-
-            }
+        public async Task Echo_Data(IBuffer buffer){
             
-            // send byte 13 8-byte progress cursor buried at offset 13 as 0x17 command b3 0x01 
+            byte[] payload = buffer.ToArray(13U, 8);
+            await Send_Command(WhoopCommands.Echo, 0x01, 0x2f, payload);
 
         }
 
 
-        public async Task<bool> Send_Command(WhoopCommands command, byte b3, byte[] payload = null){
+        public async Task<bool> Send_Command(WhoopCommands command, byte b3, byte type = 0x23, byte[] payload = null){
             Console.WriteLine("Connection status: " + woop.device.ConnectionStatus);
             Console.WriteLine("sending a command");
-            byte type = 0x23;
             byte seq = (byte)woop.counter;
             //byte b3 = 0x01;
 
@@ -300,6 +277,24 @@ namespace woop_app
             var reader = DataReader.FromBuffer(args.CharacteristicValue);
             byte[] data = new byte[reader.UnconsumedBufferLength];
             reader.ReadBytes(data);
+
+            // check to see what type of byte
+            // if type 0x31 then we want to echo because its history
+            
+            byte[] frame = args.CharacteristicValue.ToArray();
+
+            byte type = frame[8];
+
+            if (type == 0x2F)
+            {
+                Console.WriteLine("r22 packet: " + BitConverter.ToString(data));
+
+            } else if(type == 0x31){
+                Console.WriteLine("status packet: " + BitConverter.ToString(data));
+                Echo_Data();
+            }
+
+
 
             Console.WriteLine("sender uuid: " + sender.Uuid + "\n" +  BitConverter.ToString(data));
         }
