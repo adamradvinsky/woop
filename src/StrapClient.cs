@@ -11,6 +11,12 @@ using System.Diagnostics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.IO.Hashing;
 
+using System.IO;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Storage.Streams;
+
+
+
 namespace woop_app
 {
     public class StrapClient{
@@ -19,10 +25,7 @@ namespace woop_app
         public Woop woop = new Woop();
 
 
-
         
-
-
         public StrapClient(BleClient bleClient){
            Console.WriteLine("created the strap client");
            this.bleClient = bleClient;
@@ -178,9 +181,18 @@ namespace woop_app
 
         public async Task Echo_Data(IBuffer buffer){
             
-            byte[] payload = buffer.ToArray(13U, 8);
+            byte[] payload = new byte[8];
+
+            using(Stream stream = buffer.AsStream()){
+
+                stream.Seek(13, SeekOrigin.Begin);
+
+                stream.Read(payload, 0, 8);
+            }
+
             await Send_Command(WhoopCommands.Echo, 0x01, 0x2f, payload);
 
+            return;
         }
 
 
@@ -272,7 +284,7 @@ namespace woop_app
 
 
         private void Characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args){
-            Console.WriteLine("the value changed twin !");
+            //Console.WriteLine("the value changed twin !");
 
             var reader = DataReader.FromBuffer(args.CharacteristicValue);
             byte[] data = new byte[reader.UnconsumedBufferLength];
@@ -285,23 +297,20 @@ namespace woop_app
 
             byte type = frame[8];
 
-            //juoihiuhuiy
+
             if (type == 0x2F)
             {
                 Console.WriteLine("r22 packet: " + BitConverter.ToString(data));
 
             } else if(type == 0x31){
                 Console.WriteLine("status packet: " + BitConverter.ToString(data));
-                Echo_Data();
+                Echo_Data(args.CharacteristicValue);
             }
 
 
 
-            Console.WriteLine("sender uuid: " + sender.Uuid + "\n" +  BitConverter.ToString(data));
+            //Console.WriteLine("sender uuid: " + sender.Uuid + "\n" +  BitConverter.ToString(data));
         }
-
-        /// awudhadawj
-        /// asdfg
 
 
 
