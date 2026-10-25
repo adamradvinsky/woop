@@ -7,6 +7,7 @@ namespace woop_app
     public partial class App : Application
     {
         BleClient bleClient;
+        Database db;
         public event Action<int> HeartRateUpdated;   
         StrapClient strapClient;
 
@@ -17,9 +18,20 @@ namespace woop_app
                 if (bleClient == null)
                 {
                     bleClient = new BleClient();
-                    Console.WriteLine("it was null");
+                    Console.WriteLine("bleclient was null");
                 } 
                 return bleClient;
+            }
+        }
+
+        public Database Database{
+            get{
+                if (db == null)
+                {
+                    db = new Database();
+                    Console.WriteLine("databse was null");
+                } 
+                return db;
             }
         }
 
@@ -28,8 +40,8 @@ namespace woop_app
             get{
                 if (strapClient == null)
                 {
-                    strapClient = new StrapClient(bleClient);
-                    Console.WriteLine("it was null");
+                    strapClient = new StrapClient(bleClient, db);
+                    Console.WriteLine("strapclient was null");
                 } 
                 return strapClient;
             }

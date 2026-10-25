@@ -20,6 +20,7 @@ namespace woop_app
         public event Action<int> ui_Connect_Device;
 
         private BleClient bleClient;
+        private Database dataBase;
         private StrapClient strapClient;
 
         // WHOOP instance
@@ -42,6 +43,7 @@ namespace woop_app
             App myApp = (App)currentApp;
 
             bleClient = myApp.BleClient;
+            dataBase = myApp.Database;
             strapClient = myApp.StrapClient;
 
             /*

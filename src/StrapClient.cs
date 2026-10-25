@@ -22,13 +22,15 @@ namespace woop_app
     public class StrapClient{
 
         private BleClient bleClient;
+        private Database dataBase;
         public Woop woop = new Woop();
 
 
         
-        public StrapClient(BleClient bleClient){
+        public StrapClient(BleClient bleClient, Database db){
            Console.WriteLine("created the strap client");
            this.bleClient = bleClient;
+           this.dataBase = db;
 
            
             Console.WriteLine(woop.test);
