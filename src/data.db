@@ -1,6 +1,0 @@
-CREATE TABLE woop {
-    time INTEGER PRIMARY KEY, 
-    hr   INTEGER NOT NULL,
-    ax   REAL, ay REAL, ax REAL,
-    raw  BLOCK NOT NULL
-};
