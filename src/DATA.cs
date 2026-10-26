@@ -1,6 +1,5 @@
 namespace woop_app
 {
-
     // commands
     public enum WhoopCommands
     {

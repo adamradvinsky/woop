@@ -33,7 +33,16 @@ namespace woop_app
 
         public MainWindow()
         {
-            InitializeComponent();
+            try
+            {
+                InitializeComponent();
+            }
+            catch (Exception ex)
+            {
+                // Inspect ex.InnerException here
+                System.Windows.MessageBox.Show(ex.InnerException?.ToString() ?? ex.ToString());
+                throw;
+            }
 
             this.Closed += MainWindow_Closed;
             AppDomain.CurrentDomain.ProcessExit += MainWindow_Closed;

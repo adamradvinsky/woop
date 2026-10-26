@@ -1,17 +1,27 @@
 using Microsoft.Data.Sqlite;
+using System.IO;
+
 
 namespace woop_app {
     
-
     // time | heartrate | acceleration | raw bytes
     public class Database {
 
+        private readonly string _connString;
         public Database(){
+
             Console.WriteLine("created the databse ");
             
-            private readonly string _connString;
             
+            Console.WriteLine("appcontext" + AppContext.BaseDirectory);
+            
+
             string folder = Path.Combine(AppContext.BaseDirectory, "data");
+            Console.WriteLine("folder" + folder);
+
+            // creates data folder
+            Directory.CreateDirectory(folder);
+            
             string path = Path.Combine(folder, "woop.db");
 
             Console.WriteLine("data base file path: " + path);
@@ -33,43 +43,24 @@ namespace woop_app {
 
             // execute create command
             create_table_cmd.ExecuteNonQuery();
-
         }
 
-        public void insert(Sample s){
-
-
-        }
-
-
-
-        private string initialize_database = "CREATE TABLE IF NOT EXISTS woop (
-                                                time INTEGER PRIMARY KEY,
-                                                hr   INTEGER NOT NULL,
-                                                ax REAL, ay REAL, az REAL,
-                                                raw  BLOB NOT NULL
-                                                );";
-
-        // INTEGER PRIMARY KEY is time
-        public void connectDataBase(){
-            using var conn = new sqliteConnection("Data Source=\\data.db");
+        public void insert(Row s){
+            using var conn = new SqliteConnection(_connString);
             conn.Open();
+            using var insert_cmd = conn.CreateCommand();
+            insert_cmd.CommandText = @"INSERT OR IGNORE INTO woop (time, hr, ax, ay, az, raw)
+                              VALUES ($time, $hr, $ax, $ay, $az, $raw)";
 
-            // insert a new line command
-            using var insert = conn.CreateCommand();
-            insert.CommandText = "$hr $time $bruh";
+            insert_cmd.Parameters.AddWithValue("$time", s.time);
+
+            insert_cmd.Parameters.AddWithValue("$hr", s.hr);
+            
+            insert_cmd.Parameters.AddWithValue("$ax", s.ax);
+            insert_cmd.Parameters.AddWithValue("$ax", s.ay);
+            insert_cmd.Parameters.AddWithValue("$ax", s.az);
+            
+            insert_cmd.Parameters.AddWithValue("$raw", s.bytes);
         }
-
-
-        public void Insert_Packet(){
-            insert.Paramaters.AddWithValue("$hr", 80);
-            var count = inert.ExecuteNonQuery();
-
-        }
-
-        
-
     }
-
-
 }
