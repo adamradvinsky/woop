@@ -61,6 +61,9 @@ namespace woop_app {
             insert_cmd.Parameters.AddWithValue("$ax", s.az);
             
             insert_cmd.Parameters.AddWithValue("$raw", s.bytes);
+
+            
+            insert_cmd.ExecuteNonQuery();
         }
     }
 }
