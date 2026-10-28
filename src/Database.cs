@@ -60,6 +60,7 @@ namespace woop_app {
             insert_cmd.Parameters.AddWithValue("$ax", s.ay);
             insert_cmd.Parameters.AddWithValue("$ax", s.az);
             
+            // scoirear
             insert_cmd.Parameters.AddWithValue("$raw", s.bytes);
 
             
