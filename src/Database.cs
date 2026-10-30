@@ -45,6 +45,9 @@ namespace woop_app {
             create_table_cmd.ExecuteNonQuery();
         }
 
+
+
+        // hallowoeeen
         public void insert(Row s){
             using var conn = new SqliteConnection(_connString);
             conn.Open();
