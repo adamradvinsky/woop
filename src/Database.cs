@@ -47,6 +47,7 @@ namespace woop_app {
 
 
 
+        // iwoejaoijes
         // hallowoeeen
         public void insert(Row s){
             using var conn = new SqliteConnection(_connString);
