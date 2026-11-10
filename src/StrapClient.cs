@@ -305,7 +305,6 @@ namespace woop_app
 
             Row row = new Row(time, hr, ax, ay,az, bytes);
             dataBase.add_to_buffer(row);
-
         }
 
 
