@@ -284,6 +284,31 @@ namespace woop_app
             return Crc32.Hash(array);
         }
 
+        private void addR22(IBuffer data){
+
+            // bytes 7 - 10 : clock
+            // byte 14      : hr
+            // byte 37      : x
+            // byte 41      : y
+            // byte 45      : z
+
+
+
+            byte[] bytes = data.ToArray();
+
+            float time = 1;
+            int hr = bytes[13];
+            float ax = 2;
+            float ay = 3;
+            float az = 5; 
+
+
+            Row row = new Row(time, hr, ax, ay,az, bytes);
+            dataBase.add_to_buffer(row);
+
+        }
+
+
 
         private void Characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args){
             //Console.WriteLine("the value changed twin !");
@@ -303,6 +328,8 @@ namespace woop_app
             if (type == 0x2F)
             {
                 Console.WriteLine("r22 packet: " + BitConverter.ToString(data));
+                // add to db
+                addR22(args.CharacteristicValue);
 
             } else if(type == 0x31){
                 Console.WriteLine("status packet: " + BitConverter.ToString(data));

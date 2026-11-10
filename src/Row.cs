@@ -1,8 +1,6 @@
 namespace woop_app
 {
 
-    
-
     public class Row{
 
         public float time;
@@ -17,8 +15,8 @@ namespace woop_app
             this.time = time;
             this.hr = hr;
             this.ax = ax;
-            this.ax = ay;
-            this.ax = az;
+            this.ay = ay;
+            this.az = az;
             this.bytes = bytes;
         }
     }
