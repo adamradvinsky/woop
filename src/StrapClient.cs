@@ -294,16 +294,17 @@ namespace woop_app
 
 
 
+
             byte[] bytes = data.ToArray();
 
-            float time = 1;
+            uint time = BitConverter.ToUInt32(bytes, 15); 
             int hr = bytes[13];
             float ax = 2;
             float ay = 3;
             float az = 5; 
 
 
-            Row row = new Row(time, hr, ax, ay,az, bytes);
+            Row row = new Row(time, hr, ax, ay, az, bytes);
             dataBase.add_to_buffer(row);
         }
 
@@ -332,6 +333,7 @@ namespace woop_app
 
             } else if(type == 0x31){
                 Console.WriteLine("status packet: " + BitConverter.ToString(data));
+                // Console.Write("status ");
                 Echo_Data(args.CharacteristicValue);
             }
 

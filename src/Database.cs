@@ -8,11 +8,11 @@ namespace woop_app {
     public class Database {
 
         private readonly string _connString;
+
         public Database(){
 
-            Console.WriteLine("created the databse ");
-            
-            
+            Console.WriteLine("creating the database ");
+
             Console.WriteLine("appcontext" + AppContext.BaseDirectory);
             
 
@@ -45,7 +45,7 @@ namespace woop_app {
             create_table_cmd.ExecuteNonQuery();
         }
 
-        private List<Row> buffer;
+        private List<Row> buffer = new();
 
         // // insert into database
         // public void insert(Row s){
@@ -89,10 +89,17 @@ namespace woop_app {
             }
         }
 
+
+
+
+        
+
         private void flush_to_db()
         {
             lock (bufferlock)
             {
+
+                Console.WriteLine("flush");
                 if (buffer.Count == 0) return;
 
                 try
