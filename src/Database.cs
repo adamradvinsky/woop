@@ -99,7 +99,7 @@ namespace woop_app {
             lock (bufferlock)
             {
 
-                Console.WriteLine("flush");
+                Console.WriteLine("flush ");
                 if (buffer.Count == 0) return;
 
                 try
