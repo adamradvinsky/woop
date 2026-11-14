@@ -93,7 +93,6 @@ namespace woop_app {
 
 
         
-        // asoidjasjd
 
         private void flush_to_db()
         {
