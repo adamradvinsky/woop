@@ -284,28 +284,25 @@ namespace woop_app
             return Crc32.Hash(array);
         }
 
-        private void addR22(IBuffer data){
+        public event Action<Row>? R22Received;
 
-            // bytes 7 - 10 : clock
-            // byte 14      : hr
-            // byte 37      : x
-            // byte 41      : y
-            // byte 45      : z
+        private void addR22(IBuffer data)
+        {
+            byte[] f = data.ToArray();
 
+            // only the 112-byte HR + accel records (124 bytes on the wire)
+            if (f.Length != 124 || (f[10] != 0x80 && f[10] != 0x82)) return;
 
+            uint  time = BitConverter.ToUInt32(f, 15);   // spec 7  + 8
+            int   hr   = f[22];                          // spec 14 + 8
+            float ax   = BitConverter.ToSingle(f, 37);   // spec 37 + 8
+            float ay   = BitConverter.ToSingle(f, 41);   // spec 41 + 8
+            float az   = BitConverter.ToSingle(f, 45);   // spec 45 + 8
 
+            var row = new Row(time, hr, ax, ay, az, f);
 
-            byte[] bytes = data.ToArray();
-
-            uint time = BitConverter.ToUInt32(bytes, 15); 
-            int hr = bytes[13];
-            float ax = 2;
-            float ay = 3;
-            float az = 5; 
-
-
-            Row row = new Row(time, hr, ax, ay, az, bytes);
-            dataBase.add_to_buffer(row);
+            Console.WriteLine(time + " : " + hr + " : " + ax + " : " + ay + " : " + az);        // tell anyone listening
+            dataBase.add_to_buffer(row);   // turn back on when you're ready
         }
 
 
@@ -332,7 +329,7 @@ namespace woop_app
                 addR22(args.CharacteristicValue);
 
             } else if(type == 0x31){
-                Console.WriteLine("status packet: " + BitConverter.ToString(data));
+                //Console.WriteLine("status packet: " + BitConverter.ToString(data));
                 // Console.Write("status ");
                 Echo_Data(args.CharacteristicValue);
             }

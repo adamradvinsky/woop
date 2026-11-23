@@ -3,7 +3,7 @@ namespace woop_app
 
     public class Row{
 
-        public float time;
+        public long time;
         public int hr;
         public float ax;
         public float ay;
@@ -11,7 +11,7 @@ namespace woop_app
         
         public byte[] bytes;
 
-        public Row(float time, int hr, float ax, float ay, float az, byte[] bytes){
+        public Row(long time, int hr, float ax, float ay, float az, byte[] bytes){
             this.time = time;
             this.hr = hr;
             this.ax = ax;
