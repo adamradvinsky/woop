@@ -89,13 +89,6 @@ namespace woop_app {
             }
         }
 
-
-
-    // sick
-    //  sickjasas
-    //asdf
-        
-
         private void flush_to_db()
         {
             lock (bufferlock)
@@ -132,7 +125,7 @@ namespace woop_app {
                         pRaw.Value = s.bytes;
                         cmd.ExecuteNonQuery();
                     }
-
+                    
                     tx.Commit();     // nothing is saved without this line
                     buffer.Clear();  // only reached if the commit worked
                 }
