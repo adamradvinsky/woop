@@ -93,7 +93,7 @@ namespace woop_app {
         {
             lock (bufferlock)
             {
-
+                //asdf
                 Console.WriteLine("flush ");
                 if (buffer.Count == 0) return;
 
