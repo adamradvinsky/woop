@@ -94,6 +94,7 @@ namespace woop_app {
             lock (bufferlock)
             {
                 //asdf
+                //ghjk
                 Console.WriteLine("flush ");
                 if (buffer.Count == 0) return;
 
